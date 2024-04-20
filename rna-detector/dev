@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+# Define colors and some local settings...
+WHITE='\033[1;37m'
+NC='\033[0m'
+COMPOSE_FILE="docker/docker-compose.yml"
+COMPOSE_USER="rnadetector"
+APP_SERVICE="app"
+
+# Set the environment variables...
+export APP_UID=${APP_UID:-$(id -u)}
+export APP_GID=${APP_GID:-$(id -g)}
+
+# Ensure that the compose file exists...
+if [ ! -f "$COMPOSE_FILE" ]; then
+  echo -e "${WHITE}The compose file does not exist.${NC}" >&2
+
+  exit 1
+fi
+
+# Ensure that Docker is running...
+if ! docker info >/dev/null 2>&1; then
+  echo -e "${WHITE}Docker is not running.${NC}" >&2
+
+  exit 1
+fi
+
+if [ $# -gt 0 ]; then
+
+  if [ "$1" == "up" ]; then
+    shift 1
+
+    if ! docker-compose -f "$COMPOSE_FILE" up -d; then
+      echo -e "${WHITE}Unable to start all containers${NC}" >&2
+
+      exit 1
+    fi
+
+  elif [ "$1" == "bun" ]; then
+    shift 1
+
+    # shellcheck disable=SC2068
+    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun $@
+
+  elif [ "$1" == "migrate" ]; then
+    shift 1
+
+    # shellcheck disable=SC2068
+    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun db:migrate $@
+
+  elif [ "$1" == "serve" ]; then
+    shift 1
+
+    # shellcheck disable=SC2068
+    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun dev $@
+
+  elif [ "$1" == "bunx" ]; then
+    shift 1
+
+    # shellcheck disable=SC2068
+    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bunx $@
+
+  elif [ "$1" == "shell" ] || [ "$1" == "bash" ]; then
+    shift 1
+
+    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bash
+
+  elif [ "$1" == "root-shell" ]; then
+    shift 1
+
+    docker-compose -f "$COMPOSE_FILE" exec -u root "$APP_SERVICE" bash
+
+  else
+
+    docker-compose -f "$COMPOSE_FILE" "$@"
+
+  fi
+
+else
+
+  docker-compose -f "$COMPOSE_FILE" ps
+
+fi

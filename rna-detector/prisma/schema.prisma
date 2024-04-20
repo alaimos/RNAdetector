@@ -1,0 +1,135 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  sessions Session[]
+  account  Account?
+
+  @@map("users")
+}
+
+model Account {
+  id                       String   @id @default(uuid())
+  userId                   String   @unique @map("user_id")
+  type                     String
+  provider                 String
+  providerAccountId        String   @map("provider_account_id")
+  refresh_token            String?  @db.Text
+  access_token             String?  @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?  @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Tags {
+  id   String @id @default(uuid())
+  name String
+
+  datasets TagsOnDataset[]
+
+  @@map("tags")
+}
+
+model Dataset {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  hidden      Boolean
+  hasMetadata Boolean  @map("has_metadata")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  datasetType DatasetType     @relation(fields: [type], references: [id])
+  tags        TagsOnDataset[]
+
+  @@map("datasets")
+}
+
+model TagsOnDataset {
+  datasetId String @map("dataset_id")
+  tagId     String @map("tag_id")
+
+  dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tag     Tags    @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([datasetId, tagId])
+  @@map("dataset_tags")
+}
+
+model DatasetType {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  handlerPlugin String   @map("handler_plugin")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  datasetTypeExtensions DatasetTypeExtension[]
+  datasets              Dataset[]
+
+  @@map("dataset_types")
+}
+
+model DatasetTypeExtension {
+  extension     String @id
+  datasetTypeId String @map("dataset_type_id")
+
+  datasetType DatasetType @relation(fields: [datasetTypeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("dataset_type_extensions")
+}
+
+enum Role {
+  USER
+  ADMIN
+}

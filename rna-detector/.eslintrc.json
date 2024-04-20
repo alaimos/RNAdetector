@@ -1,0 +1,8 @@
+{
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+  "rules": {},
+  "ignorePatterns": [
+    "src/routes/**/*",
+    "src/config/plugins.ts"
+  ]
+}

@@ -1,0 +1,61 @@
+services:
+  mysql:
+    image: "mysql/mysql-server:8.0"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "rnadetector"
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: "rnadetector"
+      MYSQL_USER: "rnadetector"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - "rnadetector-mysql:/var/lib/mysql"
+    networks:
+      - rnadetector-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-prnadetector" ]
+      retries: 3
+      timeout: 5s
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "rnadetector-redis:/data"
+    networks:
+      - rnadetector-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
+  app:
+    build:
+      dockerfile: Dockerfile
+      args:
+        UID: "${APP_UID:-1000}"
+        GID: "${APP_GID:-1001}"
+    image: rnadetector-app
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    volumes:
+      - "../:/rnadetector/app"
+      - "rnadetector-miniforge:/rnadetector/miniforge"
+    networks:
+      - rnadetector-network
+    depends_on:
+      - mysql
+      - redis
+
+networks:
+  rnadetector-network:
+volumes:
+  rnadetector-mysql:
+    driver: local
+  rnadetector-redis:
+    driver: local
+  rnadetector-miniforge:
+    driver: local

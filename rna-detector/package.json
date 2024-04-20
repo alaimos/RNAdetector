@@ -1,0 +1,60 @@
+{
+  "name": "rna-detector",
+  "version": "0.1.0",
+  "private": true,
+  "prisma": {
+    "seed": "bun prisma/seed.ts"
+  },
+  "scripts": {
+    "dev": "concurrently \"bunx declarative-routing build --watch\" \"next dev\"",
+    "build": "bunx declarative-routing build && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "dr:build": "bunx declarative-routing build",
+    "dr:build:watch": "bunx declarative-routing build --watch",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
+    "plugins": "bun src/console/managePlugins.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.12.1",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@types/bun": "^1.1.0",
+    "bcrypt": "^5.1.1",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "glob": "^10.3.12",
+    "lucide-react": "^0.368.0",
+    "next": "14.2.1",
+    "next-themes": "^0.3.0",
+    "query-string": "^9.0.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "sharp": "^0.33.3",
+    "tailwind-merge": "^2.2.2",
+    "tailwindcss-animate": "^1.0.7",
+    "yargs": "^17.7.2",
+    "zod": "^3.22.5"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/yargs": "^17.0.32",
+    "concurrently": "^8.2.2",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "postcss": "^8",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "prisma": "^5.12.1",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
