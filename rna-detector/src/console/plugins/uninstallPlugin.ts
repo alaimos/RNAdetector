@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 import reloadPlugins from "@/console/plugins/reloadPlugins";
-import { PrismaClient } from "@prisma/client";
 import { validatePluginName } from "@/console/plugins/utils";
+import db from "@/db/db";
 
 export default async function uninstallPlugin(plugin: string) {
   const pluginDir = validatePluginName(plugin);
@@ -18,9 +18,7 @@ export default async function uninstallPlugin(plugin: string) {
       process.exit(1);
     } else {
       try {
-        // @todo
-        const db = new PrismaClient();
-        await uninstall(db);
+        await uninstall();
       } catch (e) {
         console.error(`Error uninstalling plugin ${plugin}: ${e}`);
         process.exit(1);
@@ -33,4 +31,5 @@ export default async function uninstallPlugin(plugin: string) {
   }
 
   reloadPlugins();
+  await db.$disconnect();
 }

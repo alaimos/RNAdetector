@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { glob } from "glob";
 import { isValidName, toCamelCase } from "@/console/plugins/utils";
+import { PluginInterface } from "@/plugins/_base/PluginType";
 
 export default function reloadPlugins() {
   console.log("Reloading plugins...");
@@ -19,19 +20,22 @@ export default function reloadPlugins() {
 
   console.log(`Found ${availablePlugins.length} plugins.`);
 
-  const importStatements = availablePlugins
-    .map(
-      (plugin) => `import ${toCamelCase(plugin)} from "../plugins/${plugin}";`,
-    )
-    .join("\n");
+  const importStatements =
+    availablePlugins
+      .map(
+        (plugin) =>
+          `import ${toCamelCase(plugin)} from "../plugins/${plugin}";`,
+      )
+      .join("\n") +
+    '\nimport { PluginInterface } from "@/plugins/_base/PluginType";';
 
-  const arrayStatement = `export const availablePlugins = [
-${availablePlugins.map((plugin) => `  "${toCamelCase(plugin)}"`).join(",\n")}
-];`;
-
-  const mapStatement = `const pluginsMap = {
+  const mapStatement = `const pluginsMap: Record<string, PluginInterface> = {
 ${availablePlugins.map((plugin) => `  ${toCamelCase(plugin)}: ${toCamelCase(plugin)},`).join("\n")}
 };`;
+
+  const arrayStatement = `export const availablePlugins: (keyof typeof pluginsMap)[] = [
+${availablePlugins.map((plugin) => `  "${toCamelCase(plugin)}"`).join(",\n")}
+];`;
 
   const exportStatement = `export default pluginsMap;\n`;
 
@@ -39,7 +43,7 @@ ${availablePlugins.map((plugin) => `  ${toCamelCase(plugin)}: ${toCamelCase(plug
 
   fs.writeFileSync(
     outFile,
-    `${importStatements}\n\n${arrayStatement}\n\n${mapStatement}\n\n${exportStatement}`,
+    `${importStatements}\n\n${mapStatement}\n\n${arrayStatement}\n\n${exportStatement}`,
   );
 
   console.log(`Wrote to ${outFile}`);
