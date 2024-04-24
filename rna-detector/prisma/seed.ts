@@ -1,12 +1,14 @@
-import { PrismaClient } from "@prisma/client";
-import UsersSeeder from "./seeders/users";
-
-const db = new PrismaClient();
+import UsersSeeder from "./seeders/usersSeeder";
+import db from "@/db/db";
+import DatasetTypesSeeder from "./seeders/datasetTypesSeeder";
 
 async function main() {
   console.log("Seeding users...");
-  await UsersSeeder(db);
+  await UsersSeeder();
   console.log("Users seeded!");
+  console.log("Seeding dataset types...");
+  await DatasetTypesSeeder();
+  console.log("Dataset types seeded!");
 }
 
 let exitCode = 0;

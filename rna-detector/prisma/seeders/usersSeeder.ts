@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "@/lib/password";
+import db from "@/db/db";
 
 const DEFAULT_PASSWORD = "password";
 
-export default async function UsersSeeder(db: PrismaClient) {
+export default async function UsersSeeder() {
   const admin = await db.user.upsert({
     where: { email: "admin@admin.com" },
     update: {},

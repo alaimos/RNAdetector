@@ -81,16 +81,20 @@ model Tags {
 }
 
 model Dataset {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
+  description String?
   type        String
   hidden      Boolean
-  hasMetadata Boolean  @map("has_metadata")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  status      JobStatus
+  hasMetadata Boolean   @map("has_metadata")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   datasetType DatasetType     @relation(fields: [type], references: [id])
   tags        TagsOnDataset[]
+  parents     Dataset[]       @relation("DatasetLink")
+  childs      Dataset[]       @relation("DatasetLink")
 
   @@map("datasets")
 }
@@ -107,29 +111,26 @@ model TagsOnDataset {
 }
 
 model DatasetType {
-  id            String   @id @default(uuid())
+  id            String   @id
   name          String
   description   String?
   handlerPlugin String   @map("handler_plugin")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  datasetTypeExtensions DatasetTypeExtension[]
-  datasets              Dataset[]
+  datasets Dataset[]
 
   @@map("dataset_types")
-}
-
-model DatasetTypeExtension {
-  extension     String @id
-  datasetTypeId String @map("dataset_type_id")
-
-  datasetType DatasetType @relation(fields: [datasetTypeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@map("dataset_type_extensions")
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
 }

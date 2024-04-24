@@ -30,7 +30,7 @@ if [ $# -gt 0 ]; then
   if [ "$1" == "up" ]; then
     shift 1
 
-    if ! docker-compose -f "$COMPOSE_FILE" up -d; then
+    if ! docker compose -f "$COMPOSE_FILE" up -d; then
       echo -e "${WHITE}Unable to start all containers${NC}" >&2
 
       exit 1
@@ -40,44 +40,44 @@ if [ $# -gt 0 ]; then
     shift 1
 
     # shellcheck disable=SC2068
-    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun $@
+    docker compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun $@
 
   elif [ "$1" == "migrate" ]; then
     shift 1
 
     # shellcheck disable=SC2068
-    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun db:migrate $@
+    docker compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun db:migrate $@
 
   elif [ "$1" == "serve" ]; then
     shift 1
 
     # shellcheck disable=SC2068
-    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun dev $@
+    docker compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bun dev $@
 
   elif [ "$1" == "bunx" ]; then
     shift 1
 
     # shellcheck disable=SC2068
-    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bunx $@
+    docker compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bunx $@
 
   elif [ "$1" == "shell" ] || [ "$1" == "bash" ]; then
     shift 1
 
-    docker-compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bash
+    docker compose -f "$COMPOSE_FILE" exec -u "$COMPOSE_USER" "$APP_SERVICE" bash
 
   elif [ "$1" == "root-shell" ]; then
     shift 1
 
-    docker-compose -f "$COMPOSE_FILE" exec -u root "$APP_SERVICE" bash
+    docker compose -f "$COMPOSE_FILE" exec -u root "$APP_SERVICE" bash
 
   else
 
-    docker-compose -f "$COMPOSE_FILE" "$@"
+    docker compose -f "$COMPOSE_FILE" "$@"
 
   fi
 
 else
 
-  docker-compose -f "$COMPOSE_FILE" ps
+  docker compose -f "$COMPOSE_FILE" ps
 
 fi
