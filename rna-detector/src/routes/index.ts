@@ -7,12 +7,20 @@ const defaultInfo = {
 };
 
 import * as HomePageRoute from "@/app/page.info";
+import * as DatasetUploadRoute from "@/app/dataset/[datasetId]/upload/page.info";
 
 export const HomePage = makeRoute(
   "/",
   {
     ...defaultInfo,
     ...HomePageRoute.Route
+  }
+);
+export const DatasetUpload = makeRoute(
+  "/dataset/[datasetId]/upload",
+  {
+    ...defaultInfo,
+    ...DatasetUploadRoute.Route
   }
 );
 

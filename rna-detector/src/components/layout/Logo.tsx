@@ -13,12 +13,21 @@ export function Logo({ className }: { className?: ClassValue }) {
       href="/"
       className={cn("flex items-center gap-2 font-semibold", className)}
     >
-      <Image
-        src={`/images/logo-${resolvedTheme === "dark" ? "dark" : "light"}.png`}
-        alt="RNAdetector"
-        width={157}
-        height={24}
-      />
+      {resolvedTheme === "light" ? (
+        <Image
+          src="/images/logo-light.png"
+          alt="RNAdetector"
+          width={157}
+          height={24}
+        />
+      ) : (
+        <Image
+          src="/images/logo-dark.png"
+          alt="RNAdetector"
+          width={157}
+          height={24}
+        />
+      )}
       <span className="sr-only">RNAdetector</span>
     </Link>
   );
