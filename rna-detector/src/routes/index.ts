@@ -8,6 +8,7 @@ const defaultInfo = {
 
 import * as HomePageRoute from "@/app/page.info";
 import * as DatasetUploadRoute from "@/app/dataset/[datasetId]/upload/page.info";
+import * as TestRoute from "@/app/test/page.info";
 
 export const HomePage = makeRoute(
   "/",
@@ -21,6 +22,13 @@ export const DatasetUpload = makeRoute(
   {
     ...defaultInfo,
     ...DatasetUploadRoute.Route
+  }
+);
+export const Test = makeRoute(
+  "/test",
+  {
+    ...defaultInfo,
+    ...TestRoute.Route
   }
 );
 
