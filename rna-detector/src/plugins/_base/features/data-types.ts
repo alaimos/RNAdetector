@@ -1,11 +1,11 @@
-import { DatasetType } from "@/plugins/_base/PluginType";
+import { DataType } from "@/plugins/_base/plugin-types";
 
 const fastqExtensions = {
   "text/plain": [".fastq", ".fq"],
   "application/gzip": [".gz"],
 };
 
-const datasetTypes: { [key: string]: DatasetType } = {
+const dataTypes: { [key: string]: DataType } = {
   fastqSingle: {
     name: "Single-end FASTQ File",
     description: "A single-end FASTQ file containing raw sequencing reads.",
@@ -30,22 +30,6 @@ const datasetTypes: { [key: string]: DatasetType } = {
         extensions: fastqExtensions,
       },
     },
-  },
-  singleEndFastqCollection: {
-    name: "Collection of Single-end FASTQ Files",
-    description: "A collection of single-end FASTQ files.",
-    isCollection: true,
-    collectionType: "fastqSingle",
-    hasMetadata: true,
-    metadataFileName: "metadata.tsv",
-  },
-  pairedEndFastqCollection: {
-    name: "Collection of Paired-end FASTQ Files",
-    description: "A collection of paired-end FASTQ files.",
-    isCollection: true,
-    collectionType: "fastqPair",
-    hasMetadata: true,
-    metadataFileName: "metadata.tsv",
   },
   gtf: {
     name: "GTF File",
@@ -108,8 +92,9 @@ const datasetTypes: { [key: string]: DatasetType } = {
           "application/x-xz": [".xz"],
           "application/zip": [".zip"],
         },
-        postProcessingJob: async (dataset, uploadedFile) => {
+        postProcessingJob: async (data, uploadedFile) => {
           console.log("Extracting index...");
+          console.log(data, uploadedFile);
           // TODO: Extract the index
           console.log("Index extracted!");
         },
@@ -118,4 +103,4 @@ const datasetTypes: { [key: string]: DatasetType } = {
   },
 };
 
-export default datasetTypes;
+export default dataTypes;

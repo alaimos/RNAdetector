@@ -1,15 +1,15 @@
 import db from "@/db/db";
 import basePlugin from "@/plugins/_base";
-import { PluginInterface } from "@/plugins/_base/PluginType";
+import { PluginInterface } from "@/plugins/_base/plugin-types";
 import plugins from "@/config/plugins";
 
-async function createDatasetTypesFromPlugin(
+async function seedDataTypesFromPlugin(
   handlerPlugin: string,
   plugin: PluginInterface,
 ) {
-  const types = plugin.features?.datasetTypes ?? {};
+  const types = plugin.features?.dataTypes ?? {};
   for (const [id, { name, description }] of Object.entries(types)) {
-    await db.datasetType.upsert({
+    await db.dataType.upsert({
       where: { id },
       update: {},
       create: {
@@ -22,11 +22,11 @@ async function createDatasetTypesFromPlugin(
   }
 }
 
-export default async function DatasetTypesSeeder() {
-  await createDatasetTypesFromPlugin("_base", basePlugin);
+export default async function DataTypesSeeder() {
+  await seedDataTypesFromPlugin("_base", basePlugin);
   await Promise.all(
     Object.entries(plugins).map(async ([id, plugin]) => {
-      await createDatasetTypesFromPlugin(id, plugin);
+      await seedDataTypesFromPlugin(id, plugin);
     }),
   );
 }

@@ -20,6 +20,9 @@ model User {
 
   sessions Session[]
   account  Account?
+  datasets Dataset[]
+  data     Data[]
+  analyses Analysis[]
 
   @@map("users")
 }
@@ -75,26 +78,23 @@ model Tags {
   id   String @id @default(uuid())
   name String
 
-  datasets TagsOnDataset[]
+  datasets   TagsOnDataset[]
+  TagsOnData TagsOnData[]
 
   @@map("tags")
 }
 
 model Dataset {
-  id          String    @id @default(uuid())
-  name        String
-  description String?
-  type        String
-  hidden      Boolean
-  status      JobStatus
-  hasMetadata Boolean   @map("has_metadata")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  metadataFile String?  @map("metadata_file")
+  createdBy    String?  @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  datasetType DatasetType     @relation(fields: [type], references: [id])
-  tags        TagsOnDataset[]
-  parents     Dataset[]       @relation("DatasetLink")
-  childs      Dataset[]       @relation("DatasetLink")
+  user User?           @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  tags TagsOnDataset[]
 
   @@map("datasets")
 }
@@ -110,7 +110,34 @@ model TagsOnDataset {
   @@map("dataset_tags")
 }
 
-model DatasetType {
+model Data {
+  id         String   @id @default(uuid())
+  sampleName String   @map("sample_name")
+  name       String
+  type       String
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user        User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  datasetType DataType     @relation(fields: [type], references: [id])
+  tags        TagsOnData[]
+
+  @@map("data")
+}
+
+model TagsOnData {
+  dataId String @map("data_id")
+  tagId  String @map("tag_id")
+
+  tag  Tags @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Data Data @relation(fields: [dataId], references: [id])
+
+  @@id([dataId, tagId])
+  @@map("data_tags")
+}
+
+model DataType {
   id            String   @id
   name          String
   description   String?
@@ -118,9 +145,40 @@ model DatasetType {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  datasets Dataset[]
+  data Data[]
 
-  @@map("dataset_types")
+  @@map("data_types")
+}
+
+model Analysis {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  parameters Json?
+  output     Json?
+  createdBy  String   @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User  @relation(fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  jobs Job[]
+
+  @@map("analyses")
+}
+
+model Job {
+  id         String    @id @default(uuid())
+  queueId    String?   @map("queue_id")
+  analysisId String    @map("analysis_id")
+  status     JobStatus @default(PENDING)
+  reasons    String?
+  createdBy  String    @map("created_by")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  analysis Analysis @relation(fields: [analysisId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("jobs")
 }
 
 enum Role {
@@ -129,8 +187,9 @@ enum Role {
 }
 
 enum JobStatus {
-  PENDING
-  RUNNING
-  SUCCESS
-  FAILED
+  PENDING   @map("pending") // Job has been created but not yet queued
+  WAITING   @map("waiting") // Job is queued but not yet running
+  RUNNING   @map("running") // Job is currently running
+  COMPLETED @map("completed") // Job has completed successfully
+  FAILED    @map("failed") // Job has failed
 }

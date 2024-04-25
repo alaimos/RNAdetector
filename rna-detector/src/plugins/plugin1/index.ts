@@ -1,4 +1,4 @@
-import { PluginInterface } from "@/plugins/_base/PluginType";
+import { PluginInterface } from "@/plugins/_base/plugin-types";
 
 console.log("Plugin1 loaded!");
 

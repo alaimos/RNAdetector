@@ -1,5 +1,5 @@
-import { PluginInterface } from "@/plugins/_base/PluginType";
-import datasetTypes from "@/plugins/_base/features/datasetTypes";
+import { PluginInterface } from "@/plugins/_base/plugin-types";
+import dataTypes from "@/plugins/_base/features/data-types";
 
 const basePlugin: PluginInterface = {
   name: "Base Plugin",
@@ -8,7 +8,7 @@ const basePlugin: PluginInterface = {
   description:
     "This is the base plugin that ships the core functionality of the app.",
   features: {
-    datasetTypes,
+    dataTypes: dataTypes,
   },
 };
 

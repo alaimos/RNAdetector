@@ -1,14 +1,14 @@
-import UsersSeeder from "./seeders/usersSeeder";
+import UsersSeeder from "./seeders/users-seeder";
 import db from "@/db/db";
-import DatasetTypesSeeder from "./seeders/datasetTypesSeeder";
+import DataTypesSeeder from "./seeders/data-types-seeder";
 
 async function main() {
   console.log("Seeding users...");
   await UsersSeeder();
   console.log("Users seeded!");
-  console.log("Seeding dataset types...");
-  await DatasetTypesSeeder();
-  console.log("Dataset types seeded!");
+  console.log("Seeding data types...");
+  await DataTypesSeeder();
+  console.log("Data types seeded!");
 }
 
 let exitCode = 0;
