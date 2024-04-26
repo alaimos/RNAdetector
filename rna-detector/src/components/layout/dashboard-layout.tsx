@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
-import LargeNavigationMenu from "@/components/layout/LargeNavigationMenu";
-import UserMenu from "@/components/layout/UserMenu";
-import SmallSidebarSheet from "@/components/layout/SmallSidebarSheet";
-import { Logo } from "@/components/layout/Logo";
-import { ModeToggle } from "@/components/layout/ModeToggle";
-import Notifications from "@/components/layout/Notifications";
+import LargeNavigationMenu from "@/components/layout/large-navigation-menu";
+import UserMenu from "@/components/layout/user-menu";
+import SmallSidebarSheet from "@/components/layout/small-sidebar-sheet";
+import { Logo } from "@/components/layout/logo";
+import { ModeToggle } from "@/components/layout/mode-toggle";
+import Notifications from "@/components/layout/notifications";
 import { isLocalMode } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { type VariantProps } from "class-variance-authority";
@@ -51,7 +51,7 @@ export interface TagInputProps
   maxLength?: number;
   usePopoverForTags?: boolean;
   value?: string | number | readonly string[] | { id: string; text: string }[];
-  autocompleteFilter?: (option: string) => boolean;
+  autocompleteFilter?: ((option: string) => boolean) | true;
   direction?: "row" | "column";
   onInputChange?: (value: string) => void;
   customTagRenderer?: (tag: Tag) => React.ReactNode;
@@ -213,9 +213,19 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
       onClearAll?.();
     };
 
-    const filteredAutocompleteOptions = autocompleteFilter
-      ? autocompleteOptions?.filter((option) => autocompleteFilter(option.text))
-      : autocompleteOptions;
+    const filteredAutocompleteOptions = useMemo(() => {
+      if (!autocompleteOptions) return undefined;
+      if (!autocompleteFilter) return autocompleteOptions;
+      if (autocompleteFilter === true) {
+        const selectedTags = tags.map((t) => t.id);
+        return autocompleteOptions.filter(
+          (option) => !selectedTags.includes(option.id),
+        );
+      }
+      return autocompleteOptions.filter((option) =>
+        autocompleteFilter(option.text),
+      );
+    }, [tags, autocompleteOptions, autocompleteFilter]);
 
     const displayedTags = sortTags ? [...tags].sort() : tags;
 
@@ -258,8 +268,9 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             direction={direction}
           />
         ) : null}
+        {/*max-w-[450px]*/}
         {enableAutocomplete ? (
-          <div className="w-full max-w-[450px]">
+          <div className="w-full">
             <Autocomplete
               tags={tags}
               setTags={setTags}

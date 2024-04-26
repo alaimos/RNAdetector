@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import navigation from "@/config/navigation";
-import { Logo } from "@/components/layout/Logo";
+import { Logo } from "@/components/layout/logo";
 
 export default function SmallNavigationMenu() {
   return (

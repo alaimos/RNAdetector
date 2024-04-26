@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import SmallNavigationMenu from "@/components/layout/SmallNavigationMenu";
+import SmallNavigationMenu from "@/components/layout/small-navigation-menu";
 
 export default function SmallSidebarSheet() {
   return (

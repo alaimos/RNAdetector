@@ -1,21 +1,14 @@
 "use client";
-import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { type ClassValue } from "clsx";
-import { useEffect, useState } from "react";
+import { HomePage } from "@/routes";
 
-export function Logo({ className }: { className?: ClassValue }) {
-  const [isFirstRender, setIsFirstRender] = useState(true);
+export default function NoSSRLogo({ className }: { className?: ClassValue }) {
   const { resolvedTheme } = useTheme();
-  useEffect(() => {
-    setIsFirstRender(false);
-  }, []);
-  if (isFirstRender) return null;
   return (
-    <Link
-      href="/"
+    <HomePage.Link
       className={cn("flex items-center gap-2 font-semibold", className)}
     >
       {resolvedTheme === "light" ? (
@@ -36,6 +29,6 @@ export function Logo({ className }: { className?: ClassValue }) {
         />
       )}
       <span className="sr-only">RNAdetector</span>
-    </Link>
+    </HomePage.Link>
   );
 }
