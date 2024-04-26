@@ -39,4 +39,38 @@ const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
 );
 Heading.displayName = "Heading";
 
-export { Heading, headingVariants };
+const Heading1 = forwardRef<HTMLHeadingElement, Omit<HeadingProps, "as">>(
+  (props, ref) => <Heading {...props} as="h1" ref={ref} />,
+);
+Heading1.displayName = "Heading1";
+const Heading2 = forwardRef<HTMLHeadingElement, Omit<HeadingProps, "as">>(
+  (props, ref) => <Heading {...props} as="h2" ref={ref} />,
+);
+Heading2.displayName = "Heading2";
+const Heading3 = forwardRef<HTMLHeadingElement, Omit<HeadingProps, "as">>(
+  (props, ref) => <Heading {...props} as="h3" ref={ref} />,
+);
+Heading3.displayName = "Heading3";
+const Heading4 = forwardRef<HTMLHeadingElement, Omit<HeadingProps, "as">>(
+  (props, ref) => <Heading {...props} as="h4" ref={ref} />,
+);
+Heading4.displayName = "Heading4";
+const Heading5 = forwardRef<HTMLHeadingElement, Omit<HeadingProps, "as">>(
+  (props, ref) => <Heading {...props} as="h5" ref={ref} />,
+);
+Heading5.displayName = "Heading5";
+const Heading6 = forwardRef<HTMLHeadingElement, Omit<HeadingProps, "as">>(
+  (props, ref) => <Heading {...props} as="h6" ref={ref} />,
+);
+Heading6.displayName = "Heading6";
+
+export {
+  Heading,
+  headingVariants,
+  Heading1,
+  Heading2,
+  Heading3,
+  Heading4,
+  Heading5,
+  Heading6,
+};
