@@ -7,12 +7,36 @@ const defaultInfo = {
 };
 
 import * as HomePageRoute from "@/app/page.info";
+import * as DatasetListRoute from "@/app/datasets/page.info";
+import * as DatasetDetailRoute from "@/app/datasets/[id]/page.info";
+import * as NewDatasetRoute from "@/app/datasets/new/page.info";
 
 export const HomePage = makeRoute(
   "/",
   {
     ...defaultInfo,
     ...HomePageRoute.Route
+  }
+);
+export const DatasetList = makeRoute(
+  "/datasets",
+  {
+    ...defaultInfo,
+    ...DatasetListRoute.Route
+  }
+);
+export const DatasetDetail = makeRoute(
+  "/datasets/[id]",
+  {
+    ...defaultInfo,
+    ...DatasetDetailRoute.Route
+  }
+);
+export const NewDataset = makeRoute(
+  "/datasets/new",
+  {
+    ...defaultInfo,
+    ...NewDatasetRoute.Route
   }
 );
 
