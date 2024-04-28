@@ -20,7 +20,7 @@ export default function FormPageFooter({
 }: FormPageFooterProps) {
   return (
     <>
-      <div className="flex items-center justify-center gap-2 md:hidden">
+      <div className="flex items-center justify-end gap-2">
         {!discardHidden && (
           <Button type="reset" variant="outline" size="sm" onClick={onDiscard}>
             Discard

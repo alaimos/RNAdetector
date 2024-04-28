@@ -1,5 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import basePlugin from "@/plugins/_base";
+import pluginsMap from "@/config/plugins";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,4 +18,11 @@ export function humanFileSize(size: number) {
     " " +
     ["B", "kB", "MB", "GB", "TB"][i]
   );
+}
+
+export function getPlugin(name?: string) {
+  if (!name) return undefined;
+  if (name === "_base") return basePlugin;
+  if (!(name in pluginsMap)) return undefined;
+  return pluginsMap[name];
 }

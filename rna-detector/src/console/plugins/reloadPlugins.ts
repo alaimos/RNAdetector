@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { glob } from "glob";
 import { isValidName, toCamelCase } from "@/console/plugins/utils";
-import { PluginInterface } from "@/plugins/_base/PluginType";
+import { PluginInterface } from "@/plugins/_base/plugin-types";
 
 export default function reloadPlugins() {
   console.log("Reloading plugins...");
@@ -27,7 +27,7 @@ export default function reloadPlugins() {
           `import ${toCamelCase(plugin)} from "../plugins/${plugin}";`,
       )
       .join("\n") +
-    '\nimport { PluginInterface } from "@/plugins/_base/PluginType";';
+    '\nimport { PluginInterface } from "@/plugins/_base/plugin-types";';
 
   const mapStatement = `const pluginsMap: Record<string, PluginInterface> = {
 ${availablePlugins.map((plugin) => `  ${toCamelCase(plugin)}: ${toCamelCase(plugin)},`).join("\n")}

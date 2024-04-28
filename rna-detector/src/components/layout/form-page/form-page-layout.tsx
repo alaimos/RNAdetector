@@ -15,7 +15,7 @@ interface FormPageLayoutProps {
   children: ReactNode;
 }
 
-export default function FormPageLayout({
+export function FormPageLayout({
   title,
   backLink,
   onDiscard,

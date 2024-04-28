@@ -39,6 +39,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-table": "^8.16.0",
     "@types/bun": "^1.1.0",
+    "@uidotdev/usehooks": "^2.4.1",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.7.4",
     "class-variance-authority": "^0.7.0",

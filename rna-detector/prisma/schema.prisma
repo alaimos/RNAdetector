@@ -89,6 +89,7 @@ model Dataset {
   id           String   @id @default(uuid())
   name         String
   description  String?
+  public       Boolean  @default(false)
   metadataFile String?  @map("metadata_file")
   createdBy    String?  @map("created_by")
   createdAt    DateTime @default(now()) @map("created_at")
@@ -112,13 +113,16 @@ model TagsOnDataset {
 }
 
 model Data {
-  id         String   @id @default(uuid())
-  sampleName String   @map("sample_name")
+  id         String    @id @default(uuid())
+  sampleName String    @map("sample_name")
   name       String
   type       String
-  createdBy  String?  @map("created_by")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  public     Boolean   @default(false)
+  queueId    String?   @map("queue_id")
+  status     JobStatus @default(PENDING)
+  createdBy  String?   @map("created_by")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   user        User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
   datasetType DataType     @relation(fields: [type], references: [id])

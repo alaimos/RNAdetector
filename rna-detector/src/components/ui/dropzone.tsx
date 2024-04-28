@@ -8,14 +8,7 @@ import {
 } from "react-dropzone";
 import { cn, humanFileSize } from "@/lib/utils";
 import { CircleCheck, CircleX, CloudUpload, FileText } from "lucide-react";
-import {
-  forwardRef,
-  RefObject,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { forwardRef, RefObject, useCallback, useImperativeHandle } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -37,11 +30,11 @@ function SelectedFile({
 }) {
   return (
     <>
-      <div className="flex select-none flex-row overflow-hidden rounded-lg border border-foreground/50 bg-foreground/10 dark:border-foreground/30 md:flex-col md:items-stretch">
-        <div className="flex items-center justify-center p-4 md:flex-grow">
+      <div className="flex max-w-[16rem] select-none flex-row overflow-hidden rounded-lg border border-foreground/50 bg-foreground/10 dark:border-foreground/30">
+        <div className="flex items-center justify-center p-4">
           <FileText className="h-12 w-12 text-foreground/50" />
         </div>
-        <div className="flex min-w-0 flex-grow flex-row items-center bg-foreground/50 p-2 text-xs text-muted dark:bg-foreground/10 dark:text-foreground/80 md:flex-grow-0">
+        <div className="flex min-w-0 flex-grow flex-row items-center bg-foreground/50 p-2 text-xs text-muted dark:bg-foreground/10 dark:text-foreground/80">
           <div className="flex min-w-0 flex-grow flex-col justify-center">
             <div title={file.name} className="truncate font-bold">
               <span className="sr-only">Filename:</span>
@@ -119,14 +112,10 @@ function DropZoneContent({
         {isDragActive && isDragReject && (
           <>
             {maxFiles > 1 && (
-              <span className="font-semibold">
-                Some files you are dragging are not accepted.
-              </span>
+              <span className="font-semibold">Some files are not valid.</span>
             )}
             {maxFiles == 1 && (
-              <span className="font-semibold">
-                The file you are dragging is not accepted.
-              </span>
+              <span className="font-semibold">The file is not valid.</span>
             )}
           </>
         )}
@@ -134,13 +123,12 @@ function DropZoneContent({
           <>
             {maxFiles > 1 && (
               <span className="font-semibold">
-                Drag and drop files here, or click to select up to {maxFiles}{" "}
-                files.
+                Drag files here, or click to select.
               </span>
             )}
             {maxFiles == 1 && (
               <span className="font-semibold">
-                Drag and drop a file here, or click to select a file.
+                Drag a file here, or click to select.
               </span>
             )}
           </>
@@ -150,7 +138,13 @@ function DropZoneContent({
   );
 }
 
-interface DropZoneProps {
+export interface UploadState {
+  progress?: number;
+  error?: string;
+  success?: boolean;
+}
+
+export interface DropZoneProps {
   name: string;
   value?: File | File[];
   accept?: Accept;
@@ -165,21 +159,12 @@ interface DropZoneProps {
   onDropRejected?: (fileRejections: FileRejection[], event: DropEvent) => void;
   onError?: (err: Error) => void;
   validator?: <T extends File>(file: T) => FileError | FileError[] | null;
-}
-
-interface UploadState {
-  progress?: number;
-  error?: string;
-  success?: boolean;
+  uploadStates?: UploadState[];
 }
 
 export interface DropzoneRef {
   open: () => void;
   setFiles: (files: File | FileList | File[]) => void;
-  setProgress: (fileIndex: number, progress: number) => void;
-  setError: (fileIndex: number, error: string) => void;
-  setSuccess: (fileIndex: number) => void;
-  clear: (fileIndex: number) => void;
   focus: () => void;
   reset: () => void;
   inputRef: RefObject<HTMLInputElement>;
@@ -187,11 +172,16 @@ export interface DropzoneRef {
 }
 
 const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
-  { name, maxFiles = 1, disabled, value, ...dropZoneOptions },
+  {
+    name,
+    maxFiles = 1,
+    disabled,
+    value,
+    uploadStates = [],
+    ...dropZoneOptions
+  },
   ref,
 ) {
-  const [uploadStates, setUploadStates] = useState<UploadState[]>([]);
-
   const {
     getRootProps,
     getInputProps,
@@ -204,10 +194,6 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
     rootRef,
     inputRef,
   } = useDropzone({ ...dropZoneOptions, maxFiles, disabled });
-
-  useEffect(() => {
-    setUploadStates(acceptedFiles.map(() => ({})));
-  }, [acceptedFiles]);
 
   useImperativeHandle(
     ref,
@@ -228,34 +214,6 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
         }
         const evt = new Event("change", { bubbles: true, cancelable: true });
         inputRef.current.dispatchEvent(evt);
-      },
-      setProgress: (fileIndex, progress) => {
-        setUploadStates((prev) => [
-          ...prev.slice(0, fileIndex),
-          { progress },
-          ...prev.slice(fileIndex + 1),
-        ]);
-      },
-      setError: (fileIndex, error) => {
-        setUploadStates((prev) => [
-          ...prev.slice(0, fileIndex),
-          { error },
-          ...prev.slice(fileIndex + 1),
-        ]);
-      },
-      setSuccess: (fileIndex) => {
-        setUploadStates((prev) => [
-          ...prev.slice(0, fileIndex),
-          { success: true },
-          ...prev.slice(fileIndex + 1),
-        ]);
-      },
-      clear: (fileIndex) => {
-        setUploadStates((prev) => [
-          ...prev.slice(0, fileIndex),
-          {},
-          ...prev.slice(fileIndex + 1),
-        ]);
       },
       focus: () => {
         rootRef.current?.focus();
@@ -279,8 +237,8 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
         <div
           {...getRootProps({
             className: cn(
-              "flex h-auto w-full cursor-pointer flex-col items-center",
-              "justify-center rounded-lg border border-dashed",
+              "flex h-full w-full cursor-pointer flex-col items-center",
+              "justify-center rounded-lg border border-dashed px-2",
               "border-foreground/50 bg-muted/90 text-foreground/50",
               "hover:border-foreground/80 hover:bg-muted hover:text-foreground/80",
               isFocused && "bg-muted",
@@ -289,12 +247,12 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
             ),
           })}
         >
-          <div className="grid w-full grid-cols-2 place-items-stretch gap-4 p-4 md:grid-cols-3">
+          <div className="flex w-full flex-col flex-wrap gap-4 p-4 md:flex-row">
             {acceptedFiles.map((file, index) => (
               <SelectedFile
                 key={file.name}
                 file={file}
-                {...uploadStates[index]}
+                {...(uploadStates[index] ?? [])}
               />
             ))}
           </div>
@@ -322,7 +280,7 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
 });
 Dropzone.displayName = "DropZone";
 
-type DropzoneInputProps = (
+export type DropzoneInputProps = (
   | {
       maxFiles: 1;
       onChange: (...event: any) => void;

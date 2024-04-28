@@ -175,9 +175,9 @@ const AccordionWizardPane = ({ title, children }: AccordionWizardPaneProps) => {
       </AccordionTrigger>
       <AccordionContent className="px-2">
         <div className="flex flex-col gap-2">
-          <div>{children}</div>
+          <div className="space-y-4">{children}</div>
           {(context.isSingleMode || step >= context.getLastOpenedStep()) && (
-            <div className="flex flex-row items-center justify-end gap-2">
+            <div className="mt-2 flex flex-row items-center justify-end gap-2">
               {!context.isFirstStep(step) && (
                 <Button
                   variant="outline"
@@ -185,11 +185,10 @@ const AccordionWizardPane = ({ title, children }: AccordionWizardPaneProps) => {
                   className="gap-1"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (context.isSingleMode) {
-                      context.openStep(step - 1);
-                    } else {
+                    if (!context.isSingleMode) {
                       context.closeStep(step);
                     }
+                    context.openStep(step - 1);
                   }}
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />

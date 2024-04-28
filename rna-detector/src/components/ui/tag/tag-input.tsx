@@ -9,6 +9,7 @@ import { TagPopover } from "./tag-popover";
 import { TagList } from "./tag-list";
 import { tagVariants } from "./tag";
 import { Autocomplete } from "./autocomplete";
+import { z } from "zod";
 
 export enum Delimiter {
   Comma = ",",
@@ -413,7 +414,11 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     );
   },
 );
-
 TagInput.displayName = "TagInput";
 
-export { TagInput };
+const tagInputSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+});
+
+export { TagInput, tagInputSchema };
