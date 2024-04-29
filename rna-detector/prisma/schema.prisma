@@ -77,7 +77,7 @@ model VerificationToken {
 
 model Tags {
   id   String @id @default(uuid())
-  name String
+  name String @unique
 
   datasets   TagsOnDataset[]
   TagsOnData TagsOnData[]
@@ -95,6 +95,7 @@ model Dataset {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  data Data[]
   user User?           @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
   tags TagsOnDataset[]
 
@@ -113,17 +114,19 @@ model TagsOnDataset {
 }
 
 model Data {
-  id         String    @id @default(uuid())
-  sampleName String    @map("sample_name")
-  name       String
-  type       String
-  public     Boolean   @default(false)
-  queueId    String?   @map("queue_id")
-  status     JobStatus @default(PENDING)
-  createdBy  String?   @map("created_by")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
+  id        String    @id @default(uuid())
+  name      String
+  type      String
+  public    Boolean   @default(false)
+  queueId   String?   @map("queue_id")
+  status    JobStatus @default(PENDING)
+  datasetId String    @map("dataset_id")
+  content   Json?     @default("{}")
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
+  dataset     Dataset      @relation(fields: [datasetId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   user        User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
   datasetType DataType     @relation(fields: [type], references: [id])
   tags        TagsOnData[]
@@ -136,7 +139,7 @@ model TagsOnData {
   tagId  String @map("tag_id")
 
   tag  Tags @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Data Data @relation(fields: [dataId], references: [id])
+  data Data @relation(fields: [dataId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([dataId, tagId])
   @@map("data_tags")

@@ -2,8 +2,40 @@ import FullPageCard from "@/components/full-page-card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { NewDataset } from "@/routes";
+import db from "@/db/db";
+import { DatasetTable } from "@/app/datasets/_components/dataset-table";
+import { getCurrentUserServer } from "@/lib/utils";
 
-export default function DatasetsPage() {
+export default async function DatasetsPage() {
+  const datasets = await db.dataset.findMany({
+    where: {
+      OR: [{ public: true }, { createdBy: (await getCurrentUserServer())?.id }],
+    },
+    select: {
+      id: true,
+      name: true,
+      tags: {
+        select: {
+          tag: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: { data: true },
+      },
+    },
+  });
+  const tags = (
+    await db.tags.findMany({
+      select: {
+        name: true,
+      },
+    })
+  ).map((tag) => tag.name);
   return (
     <>
       <FullPageCard
@@ -22,7 +54,7 @@ export default function DatasetsPage() {
           </>
         }
       >
-        The page content goes here....
+        <DatasetTable datasets={datasets} tags={tags} />
       </FullPageCard>
     </>
   );

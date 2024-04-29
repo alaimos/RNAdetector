@@ -256,7 +256,7 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
               />
             ))}
           </div>
-          {!disabled && (
+          {!disabled && acceptedFiles.length === 0 && (
             <div
               className={cn(
                 "flex flex-col items-center justify-center py-2",

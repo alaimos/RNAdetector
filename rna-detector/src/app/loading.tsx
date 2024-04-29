@@ -41,7 +41,7 @@ export default function Loading() {
             />
           </svg>
         </div>
-        <div className="content-loader animate-ellipsis mt-3 text-center font-mono tracking-tight text-foreground">
+        <div className="content-loader mt-3 animate-ellipsis text-center font-mono tracking-tight text-foreground">
           Loading
         </div>
       </div>

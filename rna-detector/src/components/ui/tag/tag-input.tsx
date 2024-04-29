@@ -9,7 +9,6 @@ import { TagPopover } from "./tag-popover";
 import { TagList } from "./tag-list";
 import { tagVariants } from "./tag";
 import { Autocomplete } from "./autocomplete";
-import { z } from "zod";
 
 export enum Delimiter {
   Comma = ",",
@@ -117,18 +116,6 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const [inputValue, setInputValue] = React.useState("");
     const [tagCount, setTagCount] = React.useState(Math.max(0, tags.length));
     const inputRef = React.useRef<HTMLInputElement>(null);
-
-    if (
-      (maxTags !== undefined && maxTags < 0) ||
-      (props.minTags !== undefined && props.minTags < 0)
-    ) {
-      console.warn("maxTags and minTags cannot be less than 0");
-      toast.error("maxTags and minTags cannot be less than 0", {
-        description:
-          "Please set maxTags and minTags to a value greater than or equal to 0",
-      });
-      return null;
-    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
@@ -239,6 +226,18 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
               : tag.text,
         }))
       : displayedTags;
+
+    if (
+      (maxTags !== undefined && maxTags < 0) ||
+      (props.minTags !== undefined && props.minTags < 0)
+    ) {
+      console.warn("maxTags and minTags cannot be less than 0");
+      toast.error("maxTags and minTags cannot be less than 0", {
+        description:
+          "Please set maxTags and minTags to a value greater than or equal to 0",
+      });
+      return null;
+    }
 
     return (
       <div
@@ -416,9 +415,4 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
 );
 TagInput.displayName = "TagInput";
 
-const tagInputSchema = z.object({
-  id: z.string(),
-  text: z.string(),
-});
-
-export { TagInput, tagInputSchema };
+export { TagInput };

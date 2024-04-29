@@ -20,9 +20,15 @@ const nonEmptyFileListSchema = () =>
     message: "At least one non-empty file is required",
   });
 
+const tagInputSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+});
+
 export {
   fileSchema,
   nonEmptyFileSchema,
   fileListSchema,
   nonEmptyFileListSchema,
+  tagInputSchema,
 };

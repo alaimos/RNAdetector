@@ -1,85 +1,172 @@
 "use client";
-import { MouseEvent, useCallback, useMemo } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { DatasetList } from "@/routes";
 import { FormPageLayout } from "@/components/layout/form-page/form-page-layout";
 import {
   DefaultCombobox,
-  DefaultDropZoneField,
   DefaultInputField,
   DefaultSwitchField,
   DefaultTagsField,
 } from "@/components/layout/form-page/form-page-default-fields";
 import { DataType } from "@prisma/client";
 import { z } from "zod";
-import { useForm, useFormContext } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import {
   AccordionWizard,
   AccordionWizardPane,
 } from "@/components/ui/accordion-wizard";
-import { tagInputSchema } from "@/components/ui/tag/tag-input";
 import { getPlugin } from "@/lib/utils";
-import { nonEmptyFileSchema } from "@/lib/custom-schema";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { DataTypeContentDescriptor } from "@/plugins/_base/plugin-types";
 import { usePrevious } from "@radix-ui/react-use-previous";
-
-const formSchema = z.object({
-  name: z.string().min(1).max(191),
-  description: z.string().max(191),
-  public: z.boolean(),
-  tags: z.array(tagInputSchema),
-  dataTypeId: z.string().min(1),
-  content: z.array(z.record(z.string(), nonEmptyFileSchema())),
-});
+import { formSchema } from "@/app/datasets/_schema/new-dataset-schema";
+import {
+  UploadContainer,
+  UploadStates,
+} from "@/app/datasets/new/_components/upload-container";
+import {
+  createData,
+  createDataset,
+  finalizeDataCreation,
+} from "@/app/datasets/_actions/new-dataset-actions";
+import { toast } from "sonner";
+import { ChunkUploader } from "nextjs-chunk-upload-action";
+import { chunkUploadData } from "@/app/datasets/_actions/upload-data-action";
+import { useRouter } from "next/navigation";
 
 interface NewDatasetFormProps {
   dataTypes: DataType[];
 }
 
-function ContentContainer({
-  dataTypeDescriptor,
-}: {
-  dataTypeDescriptor: { [name: string]: DataTypeContentDescriptor };
-}) {
-  const context = useFormContext<z.infer<typeof formSchema>>();
-  const content = context.watch("content");
-  return (
-    <>
-      {content.map((_, index) => {
-        return (
-          <div
-            className="flex flex-row items-center gap-4 border-b px-4 py-2"
-            key={`file-${index}`}
-          >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border-transparent bg-foreground text-primary-foreground hover:bg-foreground/80">
-              {index + 1}
-            </div>
-            <div className="flex flex-grow flex-row flex-wrap items-stretch gap-4">
-              {Object.entries(dataTypeDescriptor).map(([name, descriptor]) => {
-                return (
-                  <DefaultDropZoneField
-                    key={`file-${index}-${name}`}
-                    name={`content[${index}].${name}`}
-                    title={descriptor.name}
-                    description={descriptor.description}
-                    maxFiles={1}
-                    accept={descriptor.extensions}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </>
+async function uploadDataFiles(
+  index: number,
+  id: string,
+  contentName: string,
+  file: File,
+  uploadStates: UploadStates,
+  setUploadStates: Dispatch<SetStateAction<UploadStates>>,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const uploader = new ChunkUploader({
+      file,
+      chunkBytes: 20 * 1024 * 1024,
+      onChunkUpload: chunkUploadData,
+      metadata: { id, contentName, fileName: file.name },
+      onChunkComplete: (bytesAccepted, bytesTotal) => {
+        const percentage =
+          Math.round((bytesAccepted / bytesTotal) * 10000) / 100;
+        uploadStates[index][contentName] = {
+          progress: percentage,
+        };
+        setUploadStates({ ...uploadStates });
+      },
+      onError: (error) => {
+        uploadStates[index][contentName] = {
+          error: `${error}`,
+        };
+        setUploadStates({ ...uploadStates });
+        reject(error);
+      },
+      onSuccess: () => {
+        uploadStates[index][contentName] = {
+          success: true,
+        };
+        setUploadStates({ ...uploadStates });
+        resolve();
+      },
+    });
+    uploader.start();
+  });
+}
+
+async function createAllData(
+  data: z.infer<typeof formSchema>,
+  datasetId: string,
+) {
+  return Promise.all(
+    data.content.map(async (content) => {
+      const { name } = content;
+      return createData({
+        name,
+        tags: data.tags,
+        public: data.public,
+        type: data.dataTypeId,
+        datasetId,
+      });
+    }),
   );
 }
 
+async function finalizeAllData(
+  dataIds: string[],
+  files: Record<string, string>[],
+) {
+  return Promise.all(
+    dataIds.map(async (dataId, index) =>
+      finalizeDataCreation(dataId, files[index]),
+    ),
+  );
+}
+
+async function onFormSubmit(
+  data: z.infer<typeof formSchema>,
+  setUploadStates: Dispatch<SetStateAction<UploadStates>>,
+  setSubmitting: (value: boolean) => void,
+  onDatasetCreated: () => void,
+) {
+  setSubmitting(true);
+  try {
+    const datasetId = await createDataset({
+      name: data.name,
+      description: data.description,
+      public: data.public,
+      tags: data.tags,
+    });
+    const uploadStates: UploadStates = {};
+    const dataIds = await createAllData(data, datasetId);
+    data.content.forEach((_, index) => {
+      uploadStates[index] = {};
+    });
+    for (const [index, { files }] of data.content.entries()) {
+      for (const [contentName, file] of Object.entries(files)) {
+        await uploadDataFiles(
+          index,
+          dataIds[index],
+          contentName,
+          file,
+          uploadStates,
+          setUploadStates,
+        );
+      }
+    }
+    const files = data.content.map(({ files }) =>
+      Object.fromEntries(
+        Object.entries(files).map(([contentName, file]) => [
+          contentName,
+          file.name,
+        ]),
+      ),
+    );
+    await finalizeAllData(dataIds, files);
+    toast.success("Dataset created successfully");
+    onDatasetCreated();
+  } catch (error) {
+    toast.error(`Failed to create the dataset: ${error}`);
+  }
+  setSubmitting(false);
+}
+
 export function NewDatasetForm({ dataTypes }: NewDatasetFormProps) {
+  const [uploadStates, setUploadStates] = useState<UploadStates>({});
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
   const dataTypeOptions = useMemo(
     () =>
       dataTypes.map((dataType) => ({
@@ -110,27 +197,30 @@ export function NewDatasetForm({ dataTypes }: NewDatasetFormProps) {
     const { id, handlerPlugin } = selectedDataType;
     const descriptors = getPlugin(handlerPlugin)?.features?.dataTypes;
     if (!descriptors || !(id in descriptors)) return undefined;
-    // if (previousDataTypeId !== selectedDataTypeId) {
-    //   form.setValue("content", []);
-    // }
+    if (previousDataTypeId !== selectedDataTypeId) {
+      form.setValue("content", []);
+    }
     return descriptors[id].content;
   }, [form, previousDataTypeId, selectedDataType, selectedDataTypeId]);
-  const addContentCb = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      const oldValue = form.getValues("content");
-      form.setValue("content", [...oldValue, {}], {
-        shouldValidate: false,
+  const formSubmit = useCallback(
+    async (data: z.infer<typeof formSchema>) => {
+      await onFormSubmit(data, setUploadStates, setSubmitting, () => {
+        router.push(DatasetList());
       });
     },
-    [form],
+    [router],
   );
 
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit((data) => console.log(data))}>
-          <FormPageLayout title="New Dataset" backLink={DatasetList}>
+        <form onSubmit={form.handleSubmit(formSubmit)}>
+          <FormPageLayout
+            title="New Dataset"
+            backLink={DatasetList}
+            saveDisabled={submitting}
+            saveLoading={submitting}
+          >
             <AccordionWizard mode="multiple">
               <AccordionWizardPane title="Describe your dataset">
                 <DefaultInputField
@@ -172,19 +262,10 @@ export function NewDatasetForm({ dataTypes }: NewDatasetFormProps) {
                   </Text>
                 )}
                 {dataTypeDescriptor && (
-                  <div className="m-4 flex w-full flex-col space-y-4">
-                    <div className="flex flex-row justify-end">
-                      <Button
-                        variant="link"
-                        className="gap-2"
-                        onClick={addContentCb}
-                      >
-                        <PlusCircle className="h-3.5 w-3.5" />
-                        <span>Add Content</span>
-                      </Button>
-                    </div>
-                    <ContentContainer dataTypeDescriptor={dataTypeDescriptor} />
-                  </div>
+                  <UploadContainer
+                    dataTypeDescriptor={dataTypeDescriptor}
+                    uploadStates={uploadStates}
+                  />
                 )}
               </AccordionWizardPane>
             </AccordionWizard>
