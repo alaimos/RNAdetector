@@ -11,6 +11,8 @@ import { existsSync as exists } from "fs";
 import { join } from "path";
 import queue from "@/queue/queue";
 import { JobTypes } from "@/queue/job-types";
+import { revalidatePath } from "next/cache";
+import { DatasetDetail, DatasetList } from "@/routes";
 
 async function upsertTags(tags: { id: string; text: string }[]) {
   return Promise.all(
@@ -42,6 +44,9 @@ export async function createDataset(
       description: validData.description,
       public: validData.public,
       createdBy: currentUser?.id,
+      metadataFile: validData.metadataFile
+        ? sanitize(validData.metadataFile)
+        : null,
       tags: {
         create: [
           ...tagsData.map((tag) => ({
@@ -52,6 +57,7 @@ export async function createDataset(
     },
     select: { id: true },
   });
+  revalidatePath(DatasetList());
   return id;
 }
 
@@ -81,6 +87,7 @@ export async function createData(data: z.infer<typeof createDataActionSchema>) {
     },
     select: { id: true },
   });
+  revalidatePath(DatasetDetail({ datasetId: validData.datasetId }));
   return id;
 }
 
@@ -92,14 +99,14 @@ export async function finalizeDataCreation(
     where: { id },
     select: {
       datasetId: true,
-      datasetType: {
+      dataType: {
         select: { id: true, handlerPlugin: true },
       },
     },
   });
   const {
     datasetId,
-    datasetType: { id: typeId, handlerPlugin },
+    dataType: { id: typeId, handlerPlugin },
   } = data;
   const typeDescriptor =
     getPlugin(handlerPlugin)?.features?.dataTypes?.[typeId];

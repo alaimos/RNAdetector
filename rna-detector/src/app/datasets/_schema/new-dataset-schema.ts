@@ -21,6 +21,7 @@ const formSchema = z.object({
   description: z.string().max(191),
   public: z.boolean(),
   tags: z.array(tagInputSchema),
+  metadataFile: nonEmptyFileSchema().optional(),
   dataTypeId: z.string().min(1),
   content: z.array(dataSchema),
 });
@@ -29,6 +30,7 @@ const createDatasetActionSchema = z.object({
   name: z.string().min(1).max(191),
   description: z.string().max(191),
   public: z.boolean(),
+  metadataFile: z.string().optional(),
   tags: z.array(tagInputSchema),
 });
 

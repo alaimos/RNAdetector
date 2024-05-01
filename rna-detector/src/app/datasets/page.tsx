@@ -37,25 +37,23 @@ export default async function DatasetsPage() {
     })
   ).map((tag) => tag.name);
   return (
-    <>
-      <FullPageCard
-        title="Datasets"
-        description="Here you can manage all the datasets..."
-        titleActions={
-          <>
-            <Button size="sm" className="h-8 gap-1" asChild>
-              <NewDataset.Link>
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Dataset
-                </span>
-              </NewDataset.Link>
-            </Button>
-          </>
-        }
-      >
-        <DatasetTable datasets={datasets} tags={tags} />
-      </FullPageCard>
-    </>
+    <FullPageCard
+      title="Datasets"
+      description="Here you can manage all the datasets..."
+      titleActions={
+        <>
+          <Button size="sm" className="h-8 gap-1" asChild>
+            <NewDataset.Link>
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                New Dataset
+              </span>
+            </NewDataset.Link>
+          </Button>
+        </>
+      }
+    >
+      <DatasetTable datasets={datasets} tags={tags} />
+    </FullPageCard>
   );
 }

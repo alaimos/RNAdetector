@@ -28,12 +28,16 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string;
     icon?: ComponentType<{ className?: string }>;
   }[];
+  showSelected?: boolean;
+  showCount?: boolean;
 }
 
 export function FacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  showSelected,
+  showCount = true,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
@@ -44,7 +48,17 @@ export function FacetedFilter<TData, TValue>({
         <Button variant="outline" size="sm" className="h-8 border-dashed">
           <CirclePlus className="mr-2 h-4 w-4" />
           {title}
-          {selectedValues?.size > 0 && (
+          {showCount && selectedValues?.size > 0 && (
+            <>
+              <Badge
+                variant="secondary"
+                className="ml-2 rounded-sm px-1 font-normal"
+              >
+                {selectedValues.size}
+              </Badge>
+            </>
+          )}
+          {showSelected && selectedValues?.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
               <Badge
@@ -115,7 +129,7 @@ export function FacetedFilter<TData, TValue>({
                     {option.icon && (
                       <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
                     )}
-                    <span>{option.label}</span>
+                    <span className="text-wrap break-all">{option.label}</span>
                     {facets?.get(option.value) && (
                       <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
                         {facets.get(option.value)}

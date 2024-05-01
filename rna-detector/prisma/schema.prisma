@@ -126,10 +126,10 @@ model Data {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
-  dataset     Dataset      @relation(fields: [datasetId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  user        User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  datasetType DataType     @relation(fields: [type], references: [id])
-  tags        TagsOnData[]
+  dataset  Dataset      @relation(fields: [datasetId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  user     User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  dataType DataType     @relation(fields: [type], references: [id])
+  tags     TagsOnData[]
 
   @@map("data")
 }

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const Route = {
-  name: "DatasetDetail",
+  name: "NewData",
   params: z.object({
-    id: z.string(),
+    datasetId: z.string(),
   }),
 };

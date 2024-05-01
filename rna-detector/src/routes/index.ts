@@ -8,7 +8,9 @@ const defaultInfo = {
 
 import * as HomePageRoute from "@/app/page.info";
 import * as DatasetListRoute from "@/app/datasets/page.info";
-import * as DatasetDetailRoute from "@/app/datasets/[id]/page.info";
+import * as DatasetDetailRoute from "@/app/datasets/[datasetId]/page.info";
+import * as DataDetailsRoute from "@/app/datasets/[datasetId]/data/[dataId]/page.info";
+import * as NewDataRoute from "@/app/datasets/[datasetId]/data/new/page.info";
 import * as NewDatasetRoute from "@/app/datasets/new/page.info";
 
 export const HomePage = makeRoute(
@@ -26,10 +28,24 @@ export const DatasetList = makeRoute(
   }
 );
 export const DatasetDetail = makeRoute(
-  "/datasets/[id]",
+  "/datasets/[datasetId]",
   {
     ...defaultInfo,
     ...DatasetDetailRoute.Route
+  }
+);
+export const DataDetails = makeRoute(
+  "/datasets/[datasetId]/data/[dataId]",
+  {
+    ...defaultInfo,
+    ...DataDetailsRoute.Route
+  }
+);
+export const NewData = makeRoute(
+  "/datasets/[datasetId]/data/new",
+  {
+    ...defaultInfo,
+    ...NewDataRoute.Route
   }
 );
 export const NewDataset = makeRoute(

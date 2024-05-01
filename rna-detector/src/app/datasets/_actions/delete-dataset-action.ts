@@ -4,7 +4,7 @@ import { getDataPath, getDatasetPath } from "@/lib/utils";
 import { existsSync as exists } from "fs";
 import { rm } from "fs/promises";
 import { revalidatePath } from "next/cache";
-import { DatasetList } from "@/routes";
+import { DatasetDetail, DatasetList } from "@/routes";
 
 export async function deleteData(id: string) {
   const data = await db.data.findFirst({
@@ -15,6 +15,8 @@ export async function deleteData(id: string) {
   const dataPath = getDataPath(id, data.datasetId);
   await db.data.delete({ where: { id } });
   if (exists(dataPath)) await rm(dataPath, { recursive: true });
+  revalidatePath(DatasetList());
+  revalidatePath(DatasetDetail({ datasetId: data.datasetId }));
 }
 
 export async function deleteDataset(id: string) {

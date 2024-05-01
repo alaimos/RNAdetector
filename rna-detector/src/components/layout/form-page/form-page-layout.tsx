@@ -7,6 +7,7 @@ import FormPageFooter from "@/components/layout/form-page/form-page-footer";
 interface FormPageLayoutProps {
   title: ReactNode;
   backLink?: RouteBuilder<any, any>;
+  backLinkProps?: any;
   onDiscard?: (event: MouseEvent<HTMLButtonElement>) => void;
   onSave?: (event: MouseEvent<HTMLButtonElement>) => void;
   saveDisabled?: boolean;
@@ -18,6 +19,7 @@ interface FormPageLayoutProps {
 export function FormPageLayout({
   title,
   backLink,
+  backLinkProps,
   onDiscard,
   onSave,
   saveDisabled,
@@ -30,6 +32,7 @@ export function FormPageLayout({
       <FormPageHeader
         title={title}
         backLink={backLink}
+        backLinkProps={backLinkProps}
         onDiscard={onDiscard}
         onSave={onSave}
         saveDisabled={saveDisabled}

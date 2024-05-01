@@ -1,4 +1,3 @@
-"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import RowActionsMenu from "@/components/ui/data-table/row-actions-menu";
 import {
@@ -7,34 +6,41 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { ColumnHeader } from "@/components/ui/data-table/column-header";
-import { deleteDataset } from "@/app/datasets/_actions/delete-dataset-action";
+import { deleteData } from "@/app/datasets/_actions/delete-dataset-action";
 import { Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { DatasetDetail } from "@/routes";
+import { DataDetails } from "@/routes";
+import { Data, DataType, Tags as TagsModel } from "@prisma/client";
 
-type Tags = {
-  tag: {
-    id: string;
-    name: string;
-  };
-};
+type Tags = { tag: TagsModel };
 
-export type DatasetTableRow = {
-  id: string;
-  name: string;
+export type DataTableRow = Data & {
+  dataType: DataType;
   tags: Tags[];
-  _count: {
-    data: number;
-  };
 };
 
-export const columns: ColumnDef<DatasetTableRow>[] = [
+export const columns: ColumnDef<DataTableRow>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => <ColumnHeader column={column} title="Name" />,
     enableSorting: true,
     enableHiding: true,
     enableGlobalFilter: true,
+  },
+  {
+    accessorKey: "dataType",
+    enableSorting: true,
+    enableHiding: true,
+    enableGlobalFilter: true,
+    header: ({ column }) => <ColumnHeader column={column} title="Type" />,
+    cell: ({ row }) => row.original.dataType.name,
+    filterFn: (row, _, filterValue) => {
+      const dataType = row.getValue<DataType>("dataType");
+      if (Array.isArray(filterValue)) {
+        return filterValue.includes(dataType.id);
+      }
+      return dataType.id === filterValue;
+    },
   },
   {
     accessorKey: "tags",
@@ -51,44 +57,23 @@ export const columns: ColumnDef<DatasetTableRow>[] = [
     },
   },
   {
-    id: "count",
-    accessorFn: (row) => row._count.data,
-    header: ({ column }) => (
-      <ColumnHeader
-        column={column}
-        title="Data Files"
-        className="justify-center"
-      />
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">
-          {row.original._count.data}
-        </div>
-      );
-    },
-    enableSorting: true,
-    enableHiding: true,
-    enableGlobalFilter: false,
-  },
-  {
     id: "actions",
     cell: ({ row }) => {
-      const dataset = row.original;
+      const data = row.original;
       return (
         <RowActionsMenu>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <DatasetDetail.Link datasetId={dataset.id}>
+            <DataDetails.Link dataId={data.id} datasetId={data.datasetId}>
               <Eye className="mr-2 h-4 w-4" />
               <span>View details</span>
-            </DatasetDetail.Link>
+            </DataDetails.Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={async () => {
               try {
-                await deleteDataset(dataset.id);
+                await deleteData(data.id);
               } catch (error) {
                 toast.error(`Failed to delete dataset: ${error}`);
               }

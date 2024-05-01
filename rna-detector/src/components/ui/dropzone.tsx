@@ -32,14 +32,23 @@ function SelectedFile({
     <>
       <div className="flex max-w-[16rem] select-none flex-row overflow-hidden rounded-lg border border-foreground/50 bg-foreground/10 dark:border-foreground/30">
         <div className="flex items-center justify-center p-4">
-          <FileText className="h-12 w-12 text-foreground/50" />
+          <FileText className="h-7 w-7 text-foreground/50" />
         </div>
         <div className="flex min-w-0 flex-grow flex-row items-center bg-foreground/50 p-2 text-xs text-muted dark:bg-foreground/10 dark:text-foreground/80">
           <div className="flex min-w-0 flex-grow flex-col justify-center">
-            <div title={file.name} className="truncate font-bold">
-              <span className="sr-only">Filename:</span>
-              {file.name}
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="truncate font-bold">
+                    <span className="sr-only">Filename:</span>
+                    {file.name}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{file.name}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div className="flex flex-row gap-2">
               {progress != null && (
                 <div className="relative flex-grow">
@@ -86,9 +95,7 @@ function SelectedFile({
 
 function DropZoneContent({
   isDragActive,
-  isDragAccept,
   isDragReject,
-  maxFiles,
 }: {
   isDragActive: boolean;
   isDragAccept: boolean;
@@ -97,43 +104,19 @@ function DropZoneContent({
 }) {
   return (
     <>
-      <CloudUpload className="mb-3 h-10 w-10" />
-      <p className="mb-2 text-sm">
-        {isDragActive && isDragAccept && (
+      <div className="flex flex-row items-center gap-2 text-sm font-semibold">
+        {isDragActive && isDragReject ? (
           <>
-            {maxFiles > 1 && (
-              <span className="font-semibold">Drop the files here...</span>
-            )}
-            {maxFiles == 1 && (
-              <span className="font-semibold">Drop the file here...</span>
-            )}
+            <CircleX className="h-8 w-8" />
+            <div>Incompatible files</div>
+          </>
+        ) : (
+          <>
+            <CloudUpload className="h-8 w-8" />
+            <div>Drop files here or click to browse</div>
           </>
         )}
-        {isDragActive && isDragReject && (
-          <>
-            {maxFiles > 1 && (
-              <span className="font-semibold">Some files are not valid.</span>
-            )}
-            {maxFiles == 1 && (
-              <span className="font-semibold">The file is not valid.</span>
-            )}
-          </>
-        )}
-        {!isDragActive && (
-          <>
-            {maxFiles > 1 && (
-              <span className="font-semibold">
-                Drag files here, or click to select.
-              </span>
-            )}
-            {maxFiles == 1 && (
-              <span className="font-semibold">
-                Drag a file here, or click to select.
-              </span>
-            )}
-          </>
-        )}
-      </p>
+      </div>
     </>
   );
 }
@@ -247,19 +230,21 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
             ),
           })}
         >
-          <div className="flex w-full flex-col flex-wrap gap-4 p-4 md:flex-row">
-            {acceptedFiles.map((file, index) => (
-              <SelectedFile
-                key={file.name}
-                file={file}
-                {...(uploadStates[index] ?? [])}
-              />
-            ))}
-          </div>
+          {acceptedFiles.length > 0 && (
+            <div className="flex w-full flex-col flex-wrap gap-4 p-4 md:flex-row">
+              {acceptedFiles.map((file, index) => (
+                <SelectedFile
+                  key={file.name}
+                  file={file}
+                  {...(uploadStates[index] ?? [])}
+                />
+              ))}
+            </div>
+          )}
           {!disabled && acceptedFiles.length === 0 && (
             <div
               className={cn(
-                "flex flex-col items-center justify-center py-2",
+                "flex flex-col items-center justify-center py-8",
                 isDragReject && "!text-red-700",
                 isDragAccept && "!text-green-700",
               )}

@@ -7,6 +7,7 @@ import { RouteBuilder } from "@/routes/makeRoute";
 interface FullPageCardProps {
   title: ReactNode;
   backLink?: RouteBuilder<any, any>;
+  backLinkProps?: any;
   onDiscard?: (event: MouseEvent<HTMLButtonElement>) => void;
   onSave?: (event: MouseEvent<HTMLButtonElement>) => void;
   saveDisabled?: boolean;
@@ -17,6 +18,7 @@ interface FullPageCardProps {
 export default function FormPageHeader({
   title,
   backLink,
+  backLinkProps,
   onDiscard,
   onSave,
   saveDisabled,
@@ -27,7 +29,7 @@ export default function FormPageHeader({
     <div className="flex items-center gap-4">
       {backLink && (
         <Button variant="outline" size="icon" className="h-7 w-7" asChild>
-          <backLink.Link>
+          <backLink.Link {...backLinkProps}>
             <ChevronLeft className="h-4 w-4" />
             <span className="sr-only">Back</span>
           </backLink.Link>

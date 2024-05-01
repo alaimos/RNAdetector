@@ -9,11 +9,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { ComponentPropsWithoutRef } from "react";
+import * as React from "react";
+import { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Switch } from "@/components/ui/switch";
 import { TagInput, TagInputProps } from "@/components/ui/tag/tag-input";
 import { Combobox, ComboboxProps } from "@/components/ui/combobox";
 import { DropzoneInput, DropzoneInputProps } from "@/components/ui/dropzone";
+import { Label } from "@/components/ui/label";
 
 interface DefaultInputFieldProps
   extends Omit<
@@ -203,5 +205,20 @@ export function DefaultDropZoneField({
         </FormItem>
       )}
     />
+  );
+}
+
+export function DefaultViewField({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="align-self flex flex-grow flex-row items-center space-x-4">
+      <Label>{title}</Label>
+      <div className="font-semibold">{children}</div>
+    </div>
   );
 }
