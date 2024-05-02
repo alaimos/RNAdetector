@@ -1,4 +1,5 @@
 import { DataType } from "@/plugins/_base/plugin-types";
+import { genomeIndexArchiveJob } from "@/plugins/_base/jobs/genome-index-archive-job";
 
 const fastqExtensions = {
   "text/plain": [".fastq", ".fq"],
@@ -92,12 +93,7 @@ const dataTypes: { [key: string]: DataType } = {
           "application/x-xz": [".xz"],
           "application/zip": [".zip"],
         },
-        postProcessingJob: async (data, uploadedFile) => {
-          console.log("Extracting index...");
-          console.log(data, uploadedFile);
-          // TODO: Extract the index
-          console.log("Index extracted!");
-        },
+        postProcessingJob: genomeIndexArchiveJob,
       },
     },
   },

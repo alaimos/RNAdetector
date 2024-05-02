@@ -1,5 +1,5 @@
 export enum JobTypes {
-  DATASET_POST_PROCESS = "dataset-post-process",
+  DATA_POST_PROCESS = "data-post-process",
   RUN_ANALYSIS = "run-analysis",
 }
 

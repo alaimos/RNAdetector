@@ -129,7 +129,7 @@ export async function finalizeDataCreation(
   if (needPostProcessing) {
     queueId = (
       await queue.add(`post-process-${id}`, {
-        type: JobTypes.DATASET_POST_PROCESS,
+        type: JobTypes.DATA_POST_PROCESS,
         id,
       })
     ).id;

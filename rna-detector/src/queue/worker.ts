@@ -2,6 +2,7 @@ import { Job, Worker } from "bullmq";
 import QueueConfig from "@/config/queue";
 import chalk from "chalk";
 import processor from "@/queue/processor";
+import { JobData } from "@/queue/job-types";
 
 console.log(
   chalk.whiteBright.underline(chalk.bold("RNAdetector") + " worker v2.0.0"),
@@ -15,7 +16,7 @@ const {
 
 // const processorPath = path.join(__dirname, "processor.ts");
 
-const worker = new Worker(name, processor, {
+const worker = new Worker<JobData>(name, processor, {
   ...workerOpts,
   connection,
   autorun: true,
