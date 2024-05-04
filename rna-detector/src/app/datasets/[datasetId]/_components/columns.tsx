@@ -1,16 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
-import RowActionsMenu from "@/components/ui/data-table/row-actions-menu";
-import {
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import { ColumnHeader } from "@/components/ui/data-table/column-header";
-import { deleteData } from "@/app/datasets/_actions/delete-dataset-action";
-import { Eye, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { DataDetails } from "@/routes";
 import { Data, DataType, Tags as TagsModel } from "@prisma/client";
+import RowActions from "@/app/datasets/[datasetId]/_components/row-actions";
 
 type Tags = { tag: TagsModel };
 
@@ -60,30 +51,7 @@ export const columns: ColumnDef<DataTableRow>[] = [
     id: "actions",
     cell: ({ row }) => {
       const data = row.original;
-      return (
-        <RowActionsMenu>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <DataDetails.Link dataId={data.id} datasetId={data.datasetId}>
-              <Eye className="mr-2 h-4 w-4" />
-              <span>View details</span>
-            </DataDetails.Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={async () => {
-              try {
-                await deleteData(data.id);
-              } catch (error) {
-                toast.error(`Failed to delete dataset: ${error}`);
-              }
-            }}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </RowActionsMenu>
-      );
+      return <RowActions data={data} />;
     },
     enableSorting: false,
     enableHiding: false,

@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import { dataFormSchema } from "@/app/datasets/[datasetId]/data/_schema/new-data-schema";
 import { deleteData } from "@/app/datasets/_actions/delete-dataset-action";
+import { revalidate } from "@/app/datasets/_actions/revalidate";
 
 type UploadStates = Record<string, UploadState[]>;
 
@@ -20,7 +21,7 @@ async function uploadDataFile(
   uploadStates: UploadStates,
   setUploadStates: Dispatch<SetStateAction<UploadStates>>,
 ) {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(async (resolve, reject) => {
     const uploader = new ChunkUploader({
       file,
       chunkBytes: 20 * 1024 * 1024,
@@ -80,14 +81,17 @@ export async function onFormSubmit(
     const fileEntries = Object.entries(data.files);
     await Promise.all(
       fileEntries.map(async ([contentName, file]) =>
-        uploadDataFile(id, contentName, file, uploadStates, setUploadStates),
+        uploadDataFile(id, contentName, file[0], uploadStates, setUploadStates),
       ),
     );
     const content = Object.fromEntries(
-      fileEntries.map(([contentName, file]) => [contentName, file.name]),
+      fileEntries.map(([contentName, file]) => [contentName, file[0].name]),
     );
     await finalizeDataCreation(id, content);
     toast.success("Data created successfully");
+    revalidate(datasetId).catch((e) =>
+      toast.error(`Failed to revalidate: ${e}`),
+    );
     onDataCreated();
   } catch (error) {
     if (id) {

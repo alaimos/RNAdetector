@@ -14,6 +14,7 @@ import {
   finalizeDataCreation,
 } from "@/app/datasets/_actions/new-dataset-actions";
 import { toast } from "sonner";
+import { revalidate } from "@/app/datasets/_actions/revalidate";
 
 function getMetadataFilename(file: File) {
   const { name } = file;
@@ -149,14 +150,14 @@ export async function onFormSubmit(
       description: data.description,
       public: data.public,
       metadataFile: data.metadataFile
-        ? getMetadataFilename(data.metadataFile)
+        ? getMetadataFilename(data.metadataFile[0])
         : undefined,
       tags: data.tags,
     });
     if (data.metadataFile) {
       await uploadMetadataFile(
         datasetId,
-        data.metadataFile,
+        data.metadataFile[0],
         setMetadataUploadStates,
       );
     }
@@ -171,7 +172,7 @@ export async function onFormSubmit(
           index,
           dataIds[index],
           contentName,
-          file,
+          file[0],
           uploadStates,
           setUploadStates,
         );
@@ -181,12 +182,15 @@ export async function onFormSubmit(
       Object.fromEntries(
         Object.entries(files).map(([contentName, file]) => [
           contentName,
-          file.name,
+          file[0].name,
         ]),
       ),
     );
     await finalizeAllData(dataIds, files);
     toast.success("Dataset created successfully");
+    revalidate(datasetId).catch((e) =>
+      toast.error(`Failed to revalidate: ${e}`),
+    );
     onDatasetCreated();
   } catch (error) {
     toast.error(`Failed to create the dataset: ${error}`);

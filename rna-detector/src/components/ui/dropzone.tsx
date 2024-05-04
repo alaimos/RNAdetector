@@ -1,14 +1,14 @@
 "use client";
-import {
-  Accept,
-  DropEvent,
-  FileError,
-  FileRejection,
-  useDropzone,
-} from "react-dropzone";
+import { Accept, FileError, useDropzone } from "react-dropzone";
 import { cn, humanFileSize } from "@/lib/utils";
 import { CircleCheck, CircleX, CloudUpload, FileText } from "lucide-react";
-import { forwardRef, RefObject, useCallback, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  RefObject,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+} from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -129,18 +129,19 @@ export interface UploadState {
 
 export interface DropZoneProps {
   name: string;
-  value?: File | File[];
+  value?: File[];
   accept?: Accept;
   maxFiles?: number;
   disabled?: boolean;
-  onDrop?: <T extends File>(
+  onChange?: (files?: File[]) => void;
+  /*  onDrop?: <T extends File>(
     acceptedFiles: T[],
     fileRejections: FileRejection[],
     event: DropEvent,
   ) => void;
   onDropAccepted?: <T extends File>(files: T[], event: DropEvent) => void;
   onDropRejected?: (fileRejections: FileRejection[], event: DropEvent) => void;
-  onError?: (err: Error) => void;
+  onError?: (err: Error) => void;*/
   validator?: <T extends File>(file: T) => FileError | FileError[] | null;
   uploadStates?: UploadState[];
 }
@@ -160,11 +161,19 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
     maxFiles = 1,
     disabled,
     value,
+    onChange,
     uploadStates = [],
     ...dropZoneOptions
   },
   ref,
 ) {
+  const acceptedFiles = useMemo(() => value ?? [], [value]);
+  const onDrop = useCallback(
+    (files: File[]) => {
+      if (onChange) onChange(files);
+    },
+    [onChange],
+  );
   const {
     getRootProps,
     getInputProps,
@@ -172,11 +181,15 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
     isDragActive,
     isDragAccept,
     isDragReject,
-    acceptedFiles,
     open,
     rootRef,
     inputRef,
-  } = useDropzone({ ...dropZoneOptions, maxFiles, disabled });
+  } = useDropzone({
+    ...dropZoneOptions,
+    maxFiles,
+    disabled,
+    onDrop,
+  });
 
   useImperativeHandle(
     ref,
@@ -265,25 +278,13 @@ const Dropzone = forwardRef<DropzoneRef, DropZoneProps>(function (
 });
 Dropzone.displayName = "DropZone";
 
-export type DropzoneInputProps = (
-  | {
-      maxFiles: 1;
-      onChange: (...event: any) => void;
-      value: File;
-    }
-  | {
-      maxFiles: number;
-      onChange: (...event: any[]) => void;
-      value: File[];
-    }
-) &
-  DropZoneProps & { onBlur: () => void };
+export type DropzoneInputProps = DropZoneProps & { onBlur: () => void };
 
 const DropzoneInput = forwardRef<DropzoneRef, DropzoneInputProps>(function (
-  { maxFiles, onChange, onDrop, ...props },
+  { onBlur, ...props },
   ref,
 ) {
-  const wrappedOnDrop = useCallback(
+  /*  const wrappedOnDrop = useCallback(
     <T extends File>(
       acceptedFiles: T[],
       fileRejections: FileRejection[],
@@ -294,10 +295,8 @@ const DropzoneInput = forwardRef<DropzoneRef, DropzoneInputProps>(function (
         onDrop(acceptedFiles, fileRejections, event);
     },
     [maxFiles, onChange, onDrop],
-  );
-  return (
-    <Dropzone {...props} ref={ref} maxFiles={maxFiles} onDrop={wrappedOnDrop} />
-  );
+  );*/
+  return <Dropzone {...props} ref={ref} />;
 });
 DropzoneInput.displayName = "DropzoneInput";
 

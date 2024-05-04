@@ -34,7 +34,7 @@ export function Combobox({
   searchPlaceholder,
   noResultsPlaceholder,
   disabled,
-  closeOnSelect,
+  closeOnSelect = true,
   onChange,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);

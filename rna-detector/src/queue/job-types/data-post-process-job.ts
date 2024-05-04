@@ -20,10 +20,10 @@ export default async function dataPostProcessJob(
       },
     });
     if (!data) {
-      await job.log(`Dataset ${id} not found! Terminating job...`);
+      await job.log(`Data ${id} not found! Terminating job...`);
       return;
     }
-    db.data.update({
+    await db.data.update({
       where: { id },
       data: {
         status: JobStatus.RUNNING,

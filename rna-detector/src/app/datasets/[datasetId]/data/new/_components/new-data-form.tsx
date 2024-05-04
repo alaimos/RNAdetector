@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { getPlugin } from "@/lib/utils";
-import { usePrevious } from "@radix-ui/react-use-previous";
 import { useRouter } from "next/navigation";
 import { dataFormSchema } from "@/app/datasets/[datasetId]/data/_schema/new-data-schema";
 import {
@@ -63,21 +62,16 @@ export function NewDataForm({
     },
   });
   const selectedDataTypeId = form.watch("dataTypeId");
-  const previousDataTypeId = usePrevious(selectedDataTypeId);
-  const selectedDataType = useMemo(
-    () => dataTypes.find((dataType) => dataType.id === selectedDataTypeId),
-    [dataTypes, selectedDataTypeId],
-  );
+  const selectedDataType = useMemo(() => {
+    return dataTypes.find((dataType) => dataType.id === selectedDataTypeId);
+  }, [dataTypes, selectedDataTypeId]);
   const dataTypeDescriptor = useMemo(() => {
     if (!selectedDataType) return undefined;
     const { id, handlerPlugin } = selectedDataType;
     const descriptors = getPlugin(handlerPlugin)?.features?.dataTypes;
     if (!descriptors || !(id in descriptors)) return undefined;
-    if (previousDataTypeId !== selectedDataTypeId) {
-      form.setValue("files", {});
-    }
     return descriptors[id].content;
-  }, [form, previousDataTypeId, selectedDataType, selectedDataTypeId]);
+  }, [selectedDataType]);
   const formSubmit = useCallback(
     async (data: z.infer<typeof dataFormSchema>) => {
       await onFormSubmit(

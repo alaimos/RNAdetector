@@ -33,15 +33,15 @@ worker.on("error", (error) => {
 worker.on("active", (job, prev) => {
   console.log(`Job ${job.id} active from ${prev}`);
 });
-worker.on("completed", (job: Job, returnValue: any) => {
-  console.log(`Job ${job.id} completed with return value: ${returnValue}`);
+worker.on("completed", (job: Job) => {
+  console.log(`Job ${job.id} completed`);
 });
 worker.on("failed", (job: Job | undefined, error: Error) => {
-  console.error(`Job ${job?.id} failed with error: ${error}`);
+  console.error(`Job ${job?.id} failed with error: ${error} ${error.stack}`);
 });
-worker.on("progress", (job: Job, progress: number | object) => {
-  console.log(`Job ${job.id} is ${progress}% done`);
-});
+// worker.on("progress", async (job: Job, progress: number | object) => {
+//   console.log(`Job ${job.id} reported progress...`);
+// });
 
 const gracefulShutdown = async (signal: string) => {
   console.log(chalk.yellow(`Received ${signal}, closing worker...`));

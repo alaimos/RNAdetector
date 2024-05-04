@@ -1,9 +1,8 @@
 "use server";
 import { z } from "zod";
 import db from "@/db/db";
-import { revalidatePath } from "next/cache";
-import { DataDetails, DatasetDetail, DatasetList } from "@/routes";
 import { editDataSchema } from "@/app/datasets/[datasetId]/data/_schema/edit-data-schema";
+import { revalidate } from "@/app/datasets/_actions/revalidate";
 
 async function upsertTags(tags: { id: string; text: string }[]) {
   return Promise.all(
@@ -48,8 +47,5 @@ export async function editDataAction(
       },
     },
   });
-
-  revalidatePath(DatasetList());
-  revalidatePath(DatasetDetail({ datasetId }));
-  revalidatePath(DataDetails({ datasetId, dataId: id }));
+  await revalidate(datasetId, id);
 }

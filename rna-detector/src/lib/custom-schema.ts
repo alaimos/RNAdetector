@@ -1,14 +1,18 @@
 import { z } from "zod";
 
-const fileSchema = () =>
+const aFileSchema = () =>
   z.instanceof<typeof File>(File, {
-    message: "Invalid file",
+    message: "You must upload a file",
   });
 
-const nonEmptyFileSchema = () =>
-  fileSchema().refine((f) => f.size > 0, {
+const aNonEmptyFileSchema = () =>
+  aFileSchema().refine((f) => f.size > 0, {
     message: "A non-empty file is required",
   });
+
+const fileSchema = () => z.array(aFileSchema()).max(1);
+
+const nonEmptyFileSchema = () => z.array(aNonEmptyFileSchema()).max(1);
 
 const fileListSchema = () =>
   z.array(fileSchema()).nonempty({

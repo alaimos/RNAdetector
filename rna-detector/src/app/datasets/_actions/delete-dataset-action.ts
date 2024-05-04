@@ -3,8 +3,7 @@ import db from "@/db/db";
 import { getDataPath, getDatasetPath } from "@/lib/utils";
 import { existsSync as exists } from "fs";
 import { rm } from "fs/promises";
-import { revalidatePath } from "next/cache";
-import { DatasetDetail, DatasetList } from "@/routes";
+import { revalidate } from "@/app/datasets/_actions/revalidate";
 
 export async function deleteData(id: string) {
   const data = await db.data.findFirst({
@@ -15,8 +14,7 @@ export async function deleteData(id: string) {
   const dataPath = getDataPath(id, data.datasetId);
   await db.data.delete({ where: { id } });
   if (exists(dataPath)) await rm(dataPath, { recursive: true });
-  revalidatePath(DatasetList());
-  revalidatePath(DatasetDetail({ datasetId: data.datasetId }));
+  await revalidate(data.datasetId);
 }
 
 export async function deleteDataset(id: string) {
@@ -29,5 +27,5 @@ export async function deleteDataset(id: string) {
   await db.data.deleteMany({ where: { datasetId: id } });
   await db.dataset.delete({ where: { id } });
   if (exists(datasetPath)) await rm(datasetPath, { recursive: true });
-  revalidatePath(DatasetList());
+  await revalidate();
 }

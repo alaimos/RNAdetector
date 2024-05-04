@@ -13,10 +13,12 @@ export default function RowActionsMenu({
   children,
   buttonClassName,
   menuClassName,
+  customTrigger,
 }: {
   children: ReactNode;
   buttonClassName?: string;
   menuClassName?: string;
+  customTrigger?: ReactNode;
 }) {
   return (
     <DropdownMenu>
@@ -28,8 +30,12 @@ export default function RowActionsMenu({
             buttonClassName,
           )}
         >
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Open menu</span>
+          {customTrigger || (
+            <>
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className={cn(menuClassName)}>
