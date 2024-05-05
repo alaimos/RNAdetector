@@ -4,6 +4,7 @@ Derived from: https://www.flightcontrol.dev/blog/fix-nextjs-routing-to-have-full
 import { z } from "zod";
 import queryString from "query-string";
 import Link from "next/link";
+import React from "react";
 
 type LinkProps = Parameters<typeof Link>[0];
 
@@ -45,12 +46,19 @@ type CoreRouteElements<
   searchSchema: Search;
 };
 
+type CoreApiRouteElements<
+  Params extends z.ZodSchema,
+  Search extends z.ZodSchema = typeof emptySchema,
+> = CoreRouteElements<Params,Search> & {
+  url: ReturnType<typeof createRouteBuilder<Params, Search>>;
+}
+
 type PutRouteBuilder<
   Params extends z.ZodSchema,
   Search extends z.ZodSchema,
   Body extends z.ZodSchema,
   Result extends z.ZodSchema,
-> = CoreRouteElements<Params, Search> & {
+> = CoreApiRouteElements<Params, Search> & {
   (
     body: z.input<Body>,
     p?: z.input<Params>,
@@ -69,7 +77,7 @@ type PostRouteBuilder<
   Search extends z.ZodSchema,
   Body extends z.ZodSchema,
   Result extends z.ZodSchema,
-> = CoreRouteElements<Params, Search> & {
+> = CoreApiRouteElements<Params, Search> & {
   (
     body: z.input<Body>,
     p?: z.input<Params>,
@@ -87,7 +95,7 @@ type GetRouteBuilder<
   Params extends z.ZodSchema,
   Search extends z.ZodSchema,
   Result extends z.ZodSchema,
-> = CoreRouteElements<Params, Search> & {
+> = CoreApiRouteElements<Params, Search> & {
   (
     p?: z.input<Params>,
     search?: z.input<Search>,
@@ -98,7 +106,7 @@ type GetRouteBuilder<
   resultSchema: Result;
 };
 
-type DeleteRouteBuilder<Params extends z.ZodSchema> = CoreRouteElements<
+type DeleteRouteBuilder<Params extends z.ZodSchema> = CoreApiRouteElements<
   Params,
   z.ZodSchema
 > & {
@@ -143,8 +151,8 @@ function createPathBuilder<T extends Record<string, string | string[]>>(
 
   const elems: ((params: T) => string)[] = [];
   for (const elem of pathArr) {
-    const catchAll = elem.match(/\[\.\.\.(.*)\]/);
-    const param = elem.match(/\[(.*)\]/);
+    const catchAll = elem.match(/\[\.\.\.(.*)]/);
+    const param = elem.match(/\[(.*)]/);
     if (catchAll?.[1]) {
       const key = catchAll[1];
       elems.push((params: T) =>
@@ -254,6 +262,7 @@ export function makePostRoute<
       });
   };
 
+  routeBuilder.url = urlBuilder;
   routeBuilder.params = undefined as z.output<Params>;
   routeBuilder.paramsSchema = info.params;
   routeBuilder.search = undefined as z.output<Search>;
@@ -317,6 +326,7 @@ export function makePutRoute<
       });
   };
 
+  routeBuilder.url = urlBuilder;
   routeBuilder.params = undefined as z.output<Params>;
   routeBuilder.paramsSchema = info.params;
   routeBuilder.search = undefined as z.output<Search>;
@@ -363,6 +373,7 @@ export function makeGetRoute<
       });
   };
 
+  routeBuilder.url = urlBuilder;
   routeBuilder.params = undefined as z.output<Params>;
   routeBuilder.paramsSchema = info.params;
   routeBuilder.search = undefined as z.output<Search>;
@@ -391,6 +402,7 @@ export function makeDeleteRoute<
     });
   };
 
+  routeBuilder.url = urlBuilder;
   routeBuilder.params = undefined as z.output<Params>;
   routeBuilder.paramsSchema = info.params;
   routeBuilder.search = undefined as z.output<Search>;

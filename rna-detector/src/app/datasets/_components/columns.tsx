@@ -11,6 +11,12 @@ import { deleteDataset } from "@/app/datasets/_actions/delete-dataset-action";
 import { Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { DatasetDetail } from "@/routes";
+import { JobStatus } from "@prisma/client";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 type Tags = {
   tag: {
@@ -23,6 +29,7 @@ export type DatasetTableRow = {
   id: string;
   name: string;
   tags: Tags[];
+  data: Record<JobStatus, number>;
   _count: {
     data: number;
   };
@@ -61,10 +68,49 @@ export const columns: ColumnDef<DatasetTableRow>[] = [
       />
     ),
     cell: ({ row }) => {
+      const { original } = row;
       return (
-        <div className="text-center font-medium">
-          {row.original._count.data}
-        </div>
+        <HoverCard>
+          <HoverCardTrigger>
+            <div className="text-center font-medium">
+              {`${original.data.COMPLETED ?? 0} / ${row.original._count.data}`}
+            </div>
+          </HoverCardTrigger>
+          <HoverCardContent className="grid grid-cols-2 items-center">
+            <div className="p-2 text-center">
+              <div className="text-xs font-medium text-muted-foreground">
+                Waiting
+              </div>
+              <div className="text-lg font-bold">
+                {original.data.WAITING ?? 0}
+              </div>
+            </div>
+            <div className="p-2 text-center">
+              <div className="text-xs font-medium text-muted-foreground">
+                Running
+              </div>
+              <div className="text-lg font-bold">
+                {original.data.RUNNING ?? 0}
+              </div>
+            </div>
+            <div className="p-2 text-center">
+              <div className="text-xs font-medium text-muted-foreground">
+                Ready
+              </div>
+              <div className="text-lg font-bold">
+                {original.data.COMPLETED ?? 0}
+              </div>
+            </div>
+            <div className="p-2 text-center">
+              <div className="text-xs font-medium text-muted-foreground">
+                Failed
+              </div>
+              <div className="text-lg font-bold">
+                {original.data.FAILED ?? 0}
+              </div>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
       );
     },
     enableSorting: true,

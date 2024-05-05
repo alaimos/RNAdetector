@@ -4,31 +4,8 @@ import { PlusCircle } from "lucide-react";
 import { NewDataset } from "@/routes";
 import db from "@/db/db";
 import { DatasetTable } from "@/app/datasets/_components/dataset-table";
-import { getCurrentUserServer } from "@/lib/utils";
 
 export default async function DatasetsPage() {
-  const datasets = await db.dataset.findMany({
-    where: {
-      OR: [{ public: true }, { createdBy: (await getCurrentUserServer())?.id }],
-    },
-    select: {
-      id: true,
-      name: true,
-      tags: {
-        select: {
-          tag: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: { data: true },
-      },
-    },
-  });
   const tags = (
     await db.tags.findMany({
       select: {
@@ -53,7 +30,7 @@ export default async function DatasetsPage() {
         </>
       }
     >
-      <DatasetTable datasets={datasets} tags={tags} />
+      <DatasetTable tags={tags} />
     </FullPageCard>
   );
 }

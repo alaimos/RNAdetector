@@ -5,7 +5,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { DataDetails } from "@/routes";
+import { DataDetails, getDataApiLogs } from "@/routes";
 import {
   Hourglass,
   LoaderCircle,
@@ -75,15 +75,9 @@ function useEventSource(isOpen: boolean, datasetId: string, dataId: string) {
       setEventSource(null);
       return;
     }
-    const source = new EventSource(
-      `${DataDetails({
-        datasetId,
-        dataId,
-      })}/logs`,
-      {
-        withCredentials: true,
-      },
-    );
+    const source = new EventSource(getDataApiLogs.url({ datasetId, dataId }), {
+      withCredentials: true,
+    });
     source.onerror = (e) => {
       if (!("data" in e)) return;
       const error = JSON.parse(e.data as string);

@@ -1,19 +1,13 @@
 "use client";
-import { DataTable } from "@/components/ui/data-table/data-table";
 import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
-import { columns, DatasetTableRow } from "@/app/datasets/_components/columns";
+import { columns } from "@/app/datasets/_components/columns";
+import { RemoteDataTable } from "@/components/ui/data-table/remote-data-table";
+import { fetchDatasets } from "@/app/datasets/_actions/fetch-datasets";
 
-export function DatasetTable({
-  datasets,
-  tags,
-}: {
-  datasets: DatasetTableRow[];
-  tags: string[];
-}) {
+export function DatasetTable({ tags }: { tags: string[] }) {
   return (
-    <DataTable
+    <RemoteDataTable
       columns={columns}
-      data={datasets}
       enableGlobalFilter
       toolbarChildren={(table) => (
         <>
@@ -26,6 +20,7 @@ export function DatasetTable({
           )}
         </>
       )}
+      fetchData={fetchDatasets}
     />
   );
 }
