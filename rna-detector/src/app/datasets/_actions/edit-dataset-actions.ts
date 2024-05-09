@@ -4,9 +4,10 @@ import db from "@/db/db";
 import { editDatasetDetailsActionSchema } from "@/app/datasets/_schema/edit-details-schema";
 import sanitize from "sanitize-filename";
 import { unlink } from "fs/promises";
-import { getDatasetPath } from "@/lib/utils";
+import { getCurrentUserServer, getDatasetPath } from "@/lib/utils";
 import { join } from "path";
 import { revalidate } from "@/app/datasets/_actions/revalidate";
+import { Role } from "@prisma/client";
 
 async function upsertTags(tags: { id: string; text: string }[]) {
   return Promise.all(
@@ -31,10 +32,14 @@ export async function editDatasetDetails(
   }
   const validData = validation.data;
   const tagsData = await upsertTags(validData.tags);
-  let { metadataFile } = await db.dataset.findUniqueOrThrow({
+  let { metadataFile, createdBy } = await db.dataset.findUniqueOrThrow({
     where: { id },
-    select: { metadataFile: true },
+    select: { metadataFile: true, createdBy: true },
   });
+  const currentUser = await getCurrentUserServer();
+  if (currentUser?.role !== Role.ADMIN && createdBy !== currentUser?.id) {
+    throw new Error("You are not allowed to edit this dataset");
+  }
   if (data.metadataFile) {
     if (metadataFile) {
       await unlink(join(getDatasetPath(id), metadataFile));

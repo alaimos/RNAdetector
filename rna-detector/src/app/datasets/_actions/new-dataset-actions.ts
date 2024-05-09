@@ -11,6 +11,7 @@ import { existsSync as exists } from "fs";
 import { join } from "path";
 import queue from "@/queue/queue";
 import { JobTypes } from "@/queue/job-types";
+import { Role } from "@prisma/client";
 
 async function upsertTags(tags: { id: string; text: string }[]) {
   return Promise.all(
@@ -64,7 +65,14 @@ export async function createData(data: z.infer<typeof createDataActionSchema>) {
     throw new Error("Invalid data have been provided");
   }
   const validData = validation.data;
+  const { createdBy } = await db.dataset.findUniqueOrThrow({
+    where: { id: validData.datasetId },
+    select: { createdBy: true },
+  });
   const currentUser = await getCurrentUserServer();
+  if (currentUser?.role !== Role.ADMIN && createdBy !== currentUser?.id) {
+    throw new Error("You are not allowed to edit this dataset");
+  }
   const tagsData = await upsertTags(validData.tags);
 
   const { id } = await db.data.create({
@@ -99,8 +107,13 @@ export async function finalizeDataCreation(
       dataType: {
         select: { id: true, handlerPlugin: true },
       },
+      createdBy: true,
     },
   });
+  const currentUser = await getCurrentUserServer();
+  if (currentUser?.role !== Role.ADMIN && data.createdBy !== currentUser?.id) {
+    throw new Error("You are not allowed to edit this data");
+  }
   const {
     datasetId,
     dataType: { id: typeId, handlerPlugin },

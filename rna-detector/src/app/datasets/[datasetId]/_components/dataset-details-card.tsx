@@ -174,20 +174,23 @@ export function DatasetDetailsCard({
     async (data: z.infer<typeof editDatasetDetailsFormSchema>) => {
       setSaving(true);
       try {
-        const hasMetadata = data.metadataFile && data.metadataFile.size > 0;
+        const hasMetadata =
+          data.metadataFile &&
+          data.metadataFile.length > 0 &&
+          data.metadataFile[0].size > 0;
         await editDatasetDetails(id, {
           name: data.name,
           description: data.description,
           public: data.public,
           metadataFile: hasMetadata
-            ? getMetadataFilename(data.metadataFile!)
+            ? getMetadataFilename(data.metadataFile![0])
             : undefined,
           tags: data.tags,
         });
         if (hasMetadata) {
           await uploadMetadataFile(
             id,
-            data.metadataFile!,
+            data.metadataFile![0],
             setMetadataUploadStates,
           );
         }

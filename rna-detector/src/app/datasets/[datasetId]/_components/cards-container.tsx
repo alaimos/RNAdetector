@@ -8,6 +8,7 @@ import * as React from "react";
 import { useState } from "react";
 import { DatasetDetailsCard } from "@/app/datasets/[datasetId]/_components/dataset-details-card";
 import { DatasetDataCard } from "@/app/datasets/[datasetId]/_components/dataset-data-card";
+import { useCurrentUser } from "@/lib/session";
 
 type DatasetType = Dataset & {
   tags: { tag: Tags }[];
@@ -28,37 +29,44 @@ export function CardsContainer({
 }) {
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const currentUser = useCurrentUser();
+  const canEdit =
+    currentUser?.role === "ADMIN" || dataset.createdBy === currentUser?.id;
   return (
     <DefaultPageHeader
       title={`Details of ${dataset.name}`}
       backLink={DatasetList}
       titleActions={
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1"
-          disabled={saving}
-          onClick={(e) => {
-            e.preventDefault();
-            setEditMode((prevState) => !prevState);
-          }}
-        >
-          {!editMode ? (
-            <>
-              <Pencil className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Edit
-              </span>
-            </>
-          ) : (
-            <>
-              <CircleX className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Cancel
-              </span>
-            </>
+        <>
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              disabled={saving}
+              onClick={(e) => {
+                e.preventDefault();
+                setEditMode((prevState) => !prevState);
+              }}
+            >
+              {!editMode ? (
+                <>
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Edit
+                  </span>
+                </>
+              ) : (
+                <>
+                  <CircleX className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Cancel
+                  </span>
+                </>
+              )}
+            </Button>
           )}
-        </Button>
+        </>
       }
     >
       <DatasetDetailsCard
@@ -70,6 +78,7 @@ export function CardsContainer({
       />
       <DatasetDataCard
         datasetId={dataset.id}
+        canEdit={canEdit}
         data={dataset.data}
         tags={tags}
         dataTypes={dataTypes}

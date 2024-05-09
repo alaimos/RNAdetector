@@ -2,9 +2,10 @@ import React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
+import { cn, getCurrentUserServer } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import DashboardLayout from "@/components/layout/dashboard-layout";
+import { CurrentUserProvider } from "@/lib/session";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,11 +19,12 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUser = await getCurrentUserServer();
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -31,9 +33,11 @@ export default function RootLayout({
           inter.variable,
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <DashboardLayout>{children}</DashboardLayout>
-        </ThemeProvider>
+        <CurrentUserProvider user={currentUser}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <DashboardLayout>{children}</DashboardLayout>
+          </ThemeProvider>
+        </CurrentUserProvider>
       </body>
     </html>
   );

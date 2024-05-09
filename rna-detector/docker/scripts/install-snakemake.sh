@@ -8,4 +8,4 @@ bash "/rnadetector/miniforge/miniforge.sh" -b -f -p "/rnadetector/miniforge"
 rm "/rnadetector/miniforge/miniforge.sh"
 source "/home/rnadetector/.bashrc"
 echo "Installing Snakemake..."
-mamba create -q -y -c conda-forge -c bioconda -n snakemake snakemake
+mamba create -q -y -c conda-forge -c bioconda -n snakemake snakemake snakedeploy

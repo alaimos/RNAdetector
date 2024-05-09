@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { updateContentSchema } from "@/app/datasets/[datasetId]/data/[dataId]/logs/types";
 import { revalidate } from "@/app/datasets/_actions/revalidate";
+import { useCurrentUser } from "@/lib/session";
 
 type Tags = { tag: TagsModel };
 
@@ -68,7 +69,7 @@ function useEventSource(isOpen: boolean, datasetId: string, dataId: string) {
         }
       }
     },
-    [eventSource],
+    [dataId, datasetId, eventSource],
   );
   useEffect(() => {
     if (!isOpen) {
@@ -148,6 +149,9 @@ function LogsDialog({
 
 function ActionsMenu({ data }: { data: DataTableRow }) {
   const [waiting, setWaiting] = useState(false);
+  const currentUser = useCurrentUser();
+  const canEdit =
+    currentUser?.role === "ADMIN" || data.createdBy === currentUser?.id;
   return (
     <RowActionsMenu
       customTrigger={
@@ -175,26 +179,30 @@ function ActionsMenu({ data }: { data: DataTableRow }) {
           }
         />
       )}
-      <DropdownMenuItem asChild>
-        <DataDetails.Link dataId={data.id} datasetId={data.datasetId}>
-          <Pencil className="mr-2 h-4 w-4" />
-          <span>Edit</span>
-        </DataDetails.Link>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        onClick={async () => {
-          try {
-            setWaiting(true);
-            await deleteData(data.id);
-            setWaiting(false);
-          } catch (error) {
-            toast.error(`Failed to delete dataset: ${error}`);
-          }
-        }}
-      >
-        <Trash2 className="mr-2 h-4 w-4" />
-        <span>Delete</span>
-      </DropdownMenuItem>
+      {canEdit && (
+        <DropdownMenuItem asChild>
+          <DataDetails.Link dataId={data.id} datasetId={data.datasetId}>
+            <Pencil className="mr-2 h-4 w-4" />
+            <span>Edit</span>
+          </DataDetails.Link>
+        </DropdownMenuItem>
+      )}
+      {canEdit && (
+        <DropdownMenuItem
+          onClick={async () => {
+            try {
+              setWaiting(true);
+              await deleteData(data.id);
+              setWaiting(false);
+            } catch (error) {
+              toast.error(`Failed to delete dataset: ${error}`);
+            }
+          }}
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          <span>Delete</span>
+        </DropdownMenuItem>
+      )}
     </RowActionsMenu>
   );
 }

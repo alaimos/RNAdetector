@@ -12,6 +12,7 @@ import { NewData } from "@/routes";
 
 interface DatasetDataCardProps {
   datasetId: string;
+  canEdit: boolean;
   data: DataTableRow[];
   tags: string[];
   dataTypes: { value: string; label: string }[];
@@ -20,6 +21,7 @@ interface DatasetDataCardProps {
 
 export function DatasetDataCard({
   datasetId,
+  canEdit,
   data,
   tags,
   dataTypes,
@@ -32,20 +34,22 @@ export function DatasetDataCard({
           <CardTitle>Content</CardTitle>
         </div>
         <div className="flex items-center justify-end space-x-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            disabled={saving}
-            asChild
-          >
-            <NewData.Link datasetId={datasetId}>
-              <CloudUpload className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Content
-              </span>
-            </NewData.Link>
-          </Button>
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              disabled={saving}
+              asChild
+            >
+              <NewData.Link datasetId={datasetId}>
+                <CloudUpload className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Content
+                </span>
+              </NewData.Link>
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardHeader>

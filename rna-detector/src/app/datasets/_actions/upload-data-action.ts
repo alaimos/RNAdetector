@@ -5,8 +5,14 @@ import { existsSync } from "fs";
 import { join } from "path";
 import type { ChunkUploadHandler } from "nextjs-chunk-upload-action";
 import db from "@/db/db";
-import { getDataPath, getDatasetPath, getPlugin } from "@/lib/utils";
+import {
+  getCurrentUserServer,
+  getDataPath,
+  getDatasetPath,
+  getPlugin,
+} from "@/lib/utils";
 import sanitize from "sanitize-filename";
+import { Role } from "@prisma/client";
 
 export const chunkUploadMetadata: ChunkUploadHandler<{
   id: string;
@@ -16,8 +22,12 @@ export const chunkUploadMetadata: ChunkUploadHandler<{
   const sanitizedFileName = sanitize(fileName);
   const data = await db.dataset.findFirstOrThrow({
     where: { id },
-    select: { id: true },
+    select: { id: true, createdBy: true },
   });
+  const currentUser = await getCurrentUserServer();
+  if (currentUser?.role !== Role.ADMIN && data.createdBy !== currentUser?.id) {
+    throw new Error("You are not allowed to upload data to this dataset.");
+  }
   const datasetPath = getDatasetPath(id);
   if (!existsSync(datasetPath)) {
     await mkdir(datasetPath, { recursive: true });
@@ -48,8 +58,13 @@ export const chunkUploadData: ChunkUploadHandler<{
       dataType: {
         select: { id: true, handlerPlugin: true },
       },
+      createdBy: true,
     },
   });
+  const currentUser = await getCurrentUserServer();
+  if (currentUser?.role !== Role.ADMIN && data.createdBy !== currentUser?.id) {
+    throw new Error("You are not allowed to upload data to this dataset.");
+  }
   const {
     datasetId,
     dataType: { id: typeId, handlerPlugin },
