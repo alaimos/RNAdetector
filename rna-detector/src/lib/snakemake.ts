@@ -1,5 +1,6 @@
 import { mamba, ProgressFn } from "@/lib/mamba";
 import { existsSync as exists } from "fs";
+import fs from "fs-extra";
 
 const mambaEnv = await mamba.env(process.env.SNAKEMAKE_ENV);
 
@@ -53,6 +54,45 @@ class Snakemake {
       cwd: workflowDir,
       onProgress,
     });
+  }
+  async archive({
+    workflowDir,
+    archivePath,
+    onProgress,
+  }: {
+    workflowDir: string;
+    archivePath: string;
+    onProgress?: ProgressFn;
+  }) {
+    const cmd = ["snakemake", "--use-conda", "--archive", archivePath];
+    await mambaEnv?.run({
+      cmd,
+      cwd: workflowDir,
+      onProgress,
+    });
+  }
+  async clean({
+    workflowDir,
+    onProgress,
+  }: {
+    workflowDir: string;
+    onProgress?: ProgressFn;
+  }) {
+    const cmd = [
+      "snakemake",
+      "--use-conda",
+      "--conda-cleanup-envs",
+      "--cleanup-shadow",
+    ];
+    await mambaEnv?.run({
+      cmd,
+      cwd: workflowDir,
+      onProgress,
+    });
+    const shadowDir = `${workflowDir}/.snakemake`;
+    if (exists(shadowDir)) {
+      await fs.remove(shadowDir);
+    }
   }
 }
 

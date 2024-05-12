@@ -2,6 +2,7 @@ import { Data, Dataset } from "@prisma/client";
 import { Job } from "bullmq";
 import { ZodType } from "zod";
 import { ComponentType, ReactNode } from "react";
+import { WorkflowSpecs } from "@/lib/workflow";
 
 export interface PluginInterface {
   /**
@@ -56,6 +57,12 @@ export interface Features {
   generators?: {
     [fromType: string]: DataGenerator[];
   };
+
+  /**
+   * The workflows provided by this plugin (if any).
+   * The key is the identifier of the workflow, and the value is the workflow definition.
+   */
+  workflows?: Record<string, WorkflowSpecs<any>>;
 }
 
 export type ContentPostProcessingFunction = (
@@ -247,7 +254,7 @@ export interface DataGenerator<Parameters = Record<string, any>> {
    * A function that generates data based on the source data, destination dataset, and parameters.
    * The function should return a promise that resolves with an array of data objects.
    * The function will receive four arguments: the source data object, the destination dataset object,
-   * the parameters object, and the job object from the queue.
+   * the parameter object, and the job object from the queue.
    * The function MUST not modify the source data.
    * The function can modify the destination dataset object directly.
    * The function will modify the data on the database.

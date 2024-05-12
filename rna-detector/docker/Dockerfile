@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 as base
+FROM --platform="amd64" ubuntu:24.04 as base
 ARG UID=1001
 ARG GID=1001
 ARG BUN_INSTALL=/usr/local

@@ -10,6 +10,7 @@ declare module "process" {
         REDIS_PORT: string;
         MAMBA_BIN: string;
         SNAKEMAKE_ENV: string;
+        LOCAL_WORKFLOW_REPOSITORY_PATH: string;
 
         NEXT_PUBLIC_APP_URL: string;
       }

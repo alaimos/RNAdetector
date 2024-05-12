@@ -9,3 +9,4 @@ rm "/rnadetector/miniforge/miniforge.sh"
 source "/home/rnadetector/.bashrc"
 echo "Installing Snakemake..."
 mamba create -q -y -c conda-forge -c bioconda -n snakemake snakemake snakedeploy
+echo "channel_priority: strict" >> /home/rnadetector/.condarc
