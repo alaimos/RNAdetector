@@ -8,6 +8,7 @@ import csv, { parse } from "csv";
 import { Data, Dataset } from "@prisma/client";
 import db from "@/db/db";
 import { getDataPath, getDatasetPath } from "@/lib/utils";
+import { get, Path } from "react-hook-form";
 
 type PulledDatasets = ({ dataset: Dataset; data: Data[] } | undefined)[];
 type DatasetArray = (PulledDatasets | undefined)[];
@@ -132,7 +133,7 @@ export interface DataSpecs<Params extends WorkflowParams> {
    * The source parameter where the dataset identifiers are stored or a function
    * that get the dataset identifiers from the parameters.
    */
-  source: keyof Params | ((params: Params) => string | string[]);
+  source: Path<Params> | ((params: Params) => string | string[]);
   /**
    * The type of data to pull from the dataset
    */
@@ -240,9 +241,9 @@ export class Workflow<
     }
   }
 
-  private _getFromParams<T>(key: keyof Params | ((params: Params) => T)) {
+  private _getFromParams<T>(key: Path<Params> | ((params: Params) => T)) {
     const res = (
-      typeof key === "function" ? key(this.params) : this.params[key]
+      typeof key === "function" ? key(this.params) : get(this.params, key)
     ) as T | undefined;
     if (res == null) return undefined;
     return res;
