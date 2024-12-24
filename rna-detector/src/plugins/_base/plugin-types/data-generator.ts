@@ -2,7 +2,7 @@ import { Data, Dataset } from "@prisma/client";
 import { Job } from "bullmq";
 import { CustomParameterType } from "@/plugins/_base/plugin-types/custom-parameters";
 import { CustomWizardStep } from "@/plugins/_base/plugin-types/custom-gui";
-import { Path } from "react-hook-form";
+import { Path } from "@/plugins/_base/plugin-types/custom";
 
 /**
  * A function that generates data based on the source data, destination dataset, and parameters.

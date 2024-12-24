@@ -4,6 +4,8 @@ export type {
   DataTypeContentDescriptor,
 } from "./content-types";
 
+export type { Path } from "./custom";
+
 export type { CustomParameterType } from "./custom-parameters";
 
 export type { Features } from "./plugin-features";

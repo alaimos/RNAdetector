@@ -1,5 +1,6 @@
-import { Path, PathValue } from "react-hook-form";
-import { ZodType } from "zod";
+import { PathValue } from "react-hook-form";
+import { FirstElement, Path } from "@/plugins/_base/plugin-types/custom";
+import { ZodArray, ZodType } from "zod";
 import { ComponentPropsWithoutRef, ComponentType } from "react";
 import { InputProps } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -11,7 +12,7 @@ import { ComboboxProps } from "@/components/ui/combobox";
 interface BaseParameter<
   DataType extends Record<string, any> = Record<string, any>,
   ParameterPath extends Path<DataType> = Path<DataType>,
-  CustomParameterType extends PathValue<DataType, ParameterPath> = PathValue<
+  ContentType extends PathValue<DataType, ParameterPath> = PathValue<
     DataType,
     ParameterPath
   >,
@@ -36,7 +37,7 @@ interface BaseParameter<
   /**
    * The default value of the parameter. If not provided, the parameter will be required.
    */
-  default?: CustomParameterType;
+  default?: ContentType;
   /**
    * A placeholder text for the parameter input. If not provided, no placeholder will be displayed.
    */
@@ -44,7 +45,7 @@ interface BaseParameter<
   /**
    * The zod schema of the parameter used for validation. If not provided, the parameter will be treated as a string.
    */
-  schema?: ZodType<CustomParameterType>;
+  schema?: ZodType<ContentType>;
   /**
    * A function that determines whether the parameter component should be visible based on the current data.
    * If the function returns false, the parameter will be hidden in the form.
@@ -54,6 +55,38 @@ interface BaseParameter<
    * @returns A boolean indicating whether the parameter should be visible.
    */
   visible?: (parameters: DataType) => boolean;
+}
+
+export interface ArrayParameter<
+  DataType extends Record<string, any> = Record<string, any>,
+  ParameterPath extends Path<DataType> = Path<DataType>,
+  ContentType extends PathValue<DataType, ParameterPath> = PathValue<
+    DataType,
+    ParameterPath
+  >,
+  ArrayContentType extends Record<string, any> = FirstElement<ContentType>,
+> {
+  type: "array";
+  /**
+   * The default value of each element in the array.
+   */
+  default: ArrayContentType;
+  /**
+   * The zod schema of the parameter used for validation.
+   */
+  schema: ZodArray<ZodType<ArrayContentType>>;
+  /**
+   * A function that determines whether the parameter component should be visible based on the current data.
+   * If the function returns false, the parameter will be hidden in the form.
+   * If not provided, the parameter will always be visible.
+   * @param parameters The current data object.
+   * @returns A boolean indicating whether the parameter should be visible.
+   */
+  visible?: (parameters: DataType) => boolean;
+  /**
+   * The definitions of the parameters in the array.
+   */
+  parameters: CustomParameterType<ArrayContentType>[];
 }
 
 /**
@@ -103,7 +136,60 @@ interface DatasetSelectorParameter<
   ParameterPath extends Path<DataType> = Path<DataType>,
 > extends BaseParameter<DataType, ParameterPath> {
   type: "dataset-selector";
-  dataType: string;
+  /**
+   * The data types of the datasets that can be selected.
+   */
+  dataType: string | string[];
+  /**
+   * Can the user select multiple datasets?
+   */
+  multiple?: boolean;
+}
+
+/**
+ * A custom parameter that is rendered as a metadata variable selector field in the form.
+ */
+interface MetadataVariableSelectorParameter<
+  DataType extends Record<string, any> = Record<string, any>,
+  ParameterPath extends Path<DataType> = Path<DataType>,
+> extends BaseParameter<DataType, ParameterPath> {
+  type: "metadata-variable-selector";
+  /**
+   * The configuration variable that contains the dataset selection.
+   */
+  datasetVariable: Path<DataType> | ((data: DataType) => string | string[]);
+  /**
+   * Can the user select multiple metadata variables?
+   */
+  multiple?: boolean;
+  /**
+   * The criteria for getting the variables from multiple datasets (if the datasetVariable content is an array).
+   * - "union": get all the variables from all the datasets.
+   * - "intersection": get the intersection between all sets of metadata variable.
+   * Default: "union".
+   */
+  variableGetCriteria?: "union" | "intersection";
+}
+
+/**
+ * A custom parameter that is rendered as a metadata level selector field in the form.
+ */
+interface MetadataLevelSelectorParameter<
+  DataType extends Record<string, any> = Record<string, any>,
+  ParameterPath extends Path<DataType> = Path<DataType>,
+> extends BaseParameter<DataType, ParameterPath> {
+  type: "metadata-level-selector";
+  /**
+   * The configuration variable that contains the dataset selection.
+   */
+  datasetVariable: Path<DataType> | ((data: DataType) => string | string[]);
+  /**
+   * The configuration variable that contains the metadata variable selection.
+   */
+  metadataVariable: Path<DataType> | ((data: DataType) => string | string[]);
+  /**
+   * Can the user select multiple metadata levels?
+   */
   multiple?: boolean;
 }
 
@@ -113,11 +199,11 @@ interface DatasetSelectorParameter<
 interface CustomParameter<
   DataType extends Record<string, any> = Record<string, any>,
   ParameterPath extends Path<DataType> = Path<DataType>,
-  CustomParameterType extends PathValue<DataType, ParameterPath> = PathValue<
+  ContentType extends PathValue<DataType, ParameterPath> = PathValue<
     DataType,
     ParameterPath
   >,
-> extends BaseParameter<DataType, ParameterPath, CustomParameterType> {
+> extends BaseParameter<DataType, ParameterPath, ContentType> {
   type: "custom";
   /**
    * The component used to render the parameter in the form.
@@ -127,7 +213,7 @@ interface CustomParameter<
     title: string;
     description: string;
     placeholder?: string;
-    defaultValue: CustomParameterType;
+    defaultValue: ContentType;
     visible: boolean;
   }>;
 }
@@ -138,7 +224,7 @@ interface CustomParameter<
 export type CustomParameterType<
   DataType extends Record<string, any> = Record<string, any>,
   ParameterPath extends Path<DataType> = Path<DataType>,
-  CustomParameterType extends PathValue<DataType, ParameterPath> = PathValue<
+  ContentType extends PathValue<DataType, ParameterPath> = PathValue<
     DataType,
     ParameterPath
   >,
@@ -147,4 +233,7 @@ export type CustomParameterType<
   | SwitchParameter<DataType, ParameterPath>
   | ComboBoxParameter<DataType, ParameterPath>
   | DatasetSelectorParameter<DataType, ParameterPath>
-  | CustomParameter<DataType, ParameterPath, CustomParameterType>;
+  | CustomParameter<DataType, ParameterPath, ContentType>
+  | MetadataVariableSelectorParameter<DataType, ParameterPath>
+  | MetadataLevelSelectorParameter<DataType, ParameterPath>
+  | ArrayParameter<DataType, ParameterPath, ContentType>;

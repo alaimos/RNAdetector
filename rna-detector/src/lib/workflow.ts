@@ -8,7 +8,7 @@ import csv, { parse } from "csv";
 import { Data, Dataset } from "@prisma/client";
 import db from "@/db/db";
 import { getDataPath, getDatasetPath } from "@/lib/utils";
-import { get, Path } from "react-hook-form";
+import { ArrayPath, get, Path } from "react-hook-form";
 
 type PulledDatasets = ({ dataset: Dataset; data: Data[] } | undefined)[];
 type DatasetArray = (PulledDatasets | undefined)[];
@@ -114,6 +114,7 @@ export interface ConfigGenerator<
     params: Params,
     data: DataFiles,
     metadata: Metadata,
+    samplesMap: Record<string, string>,
     defaults?: Partial<Output>,
   ) => Output;
   /**
@@ -133,7 +134,10 @@ export interface DataSpecs<Params extends WorkflowParams> {
    * The source parameter where the dataset identifiers are stored or a function
    * that get the dataset identifiers from the parameters.
    */
-  source: Path<Params> | ((params: Params) => string | string[]);
+  source:
+    | Path<Params>
+    | ArrayPath<Params>
+    | ((params: Params) => string | string[]);
   /**
    * The type of data to pull from the dataset
    */
@@ -147,7 +151,7 @@ export interface DataSpecs<Params extends WorkflowParams> {
    */
   contentPathFunctions: Record<
     string,
-    (content: any, data: Data, dataset: Dataset) => string | undefined
+    (content: string, data: Data, dataset: Dataset) => string | undefined
   >;
 }
 
@@ -167,6 +171,13 @@ export interface WorkflowSpecs<Params extends WorkflowParams> {
    * The specifications of the configuration files to generate
    */
   config: ConfigGenerator<Params>[];
+  /**
+   * An optional function that patches the workflow directory after pulling the workflow.
+   * This function can be used to apply small modification to the snakemake workflow definition files.
+   * @param workflowDir The path to the workflow directory
+   * @returns A promise that resolves when the patch is done
+   */
+  patch?: (workflowDir: string, onProgress?: ProgressFn) => Promise<void>;
 }
 
 export class Workflow<
@@ -176,6 +187,7 @@ export class Workflow<
   private datasets: DatasetArray = [];
   private data: DataFiles = {};
   private metadata: Metadata = {};
+  private samplesMap: Record<string, string> = {};
 
   constructor(
     private specs: WorkflowType,
@@ -193,6 +205,7 @@ export class Workflow<
     await this._prepareFolder();
     this.datasets = await this._collectDatasets();
     this.data = await this._collectData();
+    this.samplesMap = this._collectDataMap();
     this.metadata = await this._collectMetadata();
     await this._prepareConfigs();
   }
@@ -241,7 +254,9 @@ export class Workflow<
     }
   }
 
-  private _getFromParams<T>(key: Path<Params> | ((params: Params) => T)) {
+  private _getFromParams<T>(
+    key: Path<Params> | ArrayPath<Params> | ((params: Params) => T),
+  ) {
     const res = (
       typeof key === "function" ? key(this.params) : get(this.params, key)
     ) as T | undefined;
@@ -264,6 +279,9 @@ export class Workflow<
       await fs.copy(path, this.workflowDir);
     } else {
       throw new Error("Unsupported workflow source");
+    }
+    if (this.specs.patch) {
+      await this.specs.patch(this.workflowDir, this.onProgress);
     }
   }
   private async _prepareFolder() {
@@ -302,7 +320,13 @@ export class Workflow<
   }
   private async _prepareConfig(specs: ConfigGenerator<any, any>) {
     const { defaults, prepare } = specs;
-    const config = prepare(this.params, this.data, this.metadata, defaults);
+    const config = prepare(
+      this.params,
+      this.data,
+      this.metadata,
+      this.samplesMap,
+      defaults,
+    );
     const validator = this._getValidator(specs);
     if (validator && !validator(config)) {
       throw new Error("Invalid configuration");
@@ -331,7 +355,7 @@ export class Workflow<
         const delimiter = fileFormat === "tsv" ? "\t" : ",";
         content = await new Promise((resolve, reject) => {
           csv.stringify(
-            currentConfig,
+            Object.values(currentConfig),
             {
               delimiter,
               header: true,
@@ -380,6 +404,23 @@ export class Workflow<
         );
       }),
     );
+  }
+  private _collectDataMap(): Record<string, string> {
+    const dataMap: Record<string, string> = {};
+    for (const datasets of this.datasets) {
+      if (!datasets) continue;
+      for (const ds of datasets) {
+        if (!ds) continue;
+        const {
+          dataset: { id: datasetId },
+          data,
+        } = ds;
+        for (const { name } of data) {
+          dataMap[name] = datasetId;
+        }
+      }
+    }
+    return dataMap;
   }
   private async _collectData() {
     return (

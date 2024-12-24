@@ -1,4 +1,4 @@
-import { Path } from "react-hook-form";
+import { Path } from "@/plugins/_base/plugin-types/custom";
 import { CustomWizardStep } from "@/plugins/_base/plugin-types/custom-gui";
 import { CustomParameterType } from "@/plugins/_base/plugin-types/custom-parameters";
 import { LucideIcon } from "lucide-react";
