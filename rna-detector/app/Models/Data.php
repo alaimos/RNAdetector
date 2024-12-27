@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\JobStatus;
 use App\Traits\HasVisibleByUser;
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Dataset extends Model
+class Data extends Model
 {
     use HasVisibleByUser;
 
@@ -19,14 +19,17 @@ class Dataset extends Model
      */
     protected $fillable = [
         'name',
-        'description',
+        'data_type_id',
         'is_public',
-        'metadata_file',
+        'queue_id',
+        'status',
+        'dataset_id',
+        'content',
         'user_id',
     ];
 
     /**
-     * Get the user that owns the dataset.
+     * Get the user that owns the data.
      */
     public function user(): BelongsTo
     {
@@ -34,30 +37,30 @@ class Dataset extends Model
     }
 
     /**
-     * Get the data contained into the dataset.
+     * Get the dataset that owns the data.
      */
-    public function data(): HasMany
+    public function dataset(): BelongsTo
     {
-        return $this->hasMany(Data::class);
+        return $this->belongsTo(Dataset::class);
     }
 
     /**
-     * The tags of this dataset.
+     * Get the data type of the data.
      */
-    public function tags(): BelongsToMany
+    public function dataType(): BelongsTo
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsTo(DataType::class);
     }
 
     /**
      * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'is_public' => 'boolean',
+            'status' => JobStatus::class,
+            'content' => AsArrayObject::class,
         ];
     }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->string('description')->nullable();
                 $table->boolean('is_public')->default(false);
                 $table->string('metadata_file')->nullable();
-                $table->foreignId('user_id')->constrained();
+                $table->foreignId('user_id')->constrained()->cascadeOnDelete();
                 $table->timestamps();
             }
         );
