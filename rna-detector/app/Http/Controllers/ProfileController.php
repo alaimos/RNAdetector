@@ -45,6 +45,10 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if (! config('auth.enabled')) {
+            return Redirect::to('/');
+        }
+
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
