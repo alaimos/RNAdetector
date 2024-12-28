@@ -32,7 +32,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'enabled' => config('auth.enabled'),
+                'user' => $request->user()?->with('unreadNotifications'),
             ],
         ];
     }
