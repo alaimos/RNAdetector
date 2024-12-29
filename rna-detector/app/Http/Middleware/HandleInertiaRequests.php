@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Avatar;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,11 +30,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user()?->load('unreadNotifications');
+
         return [
             ...parent::share($request),
             'auth' => [
                 'enabled' => config('auth.enabled'),
-                'user' => $request->user()?->with('unreadNotifications'),
+                'user' => $user,
             ],
         ];
     }

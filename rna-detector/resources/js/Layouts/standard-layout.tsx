@@ -1,4 +1,5 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/Layouts/components/app-sidebar";
+import { withTheme } from "@/Layouts/components/theme-provider";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,8 +14,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { PropsWithChildren, ReactNode } from "react";
 
-export default function Page() {
+function StandardLayoutContent({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  header,
+}: PropsWithChildren<{
+  header?: ReactNode;
+}>) {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -50,3 +57,6 @@ export default function Page() {
     </SidebarProvider>
   );
 }
+
+const StandardLayout = withTheme(StandardLayoutContent);
+export default StandardLayout;

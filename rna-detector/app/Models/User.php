@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Avatar;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -62,5 +64,30 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * The user's avatar.
+     */
+    protected function avatar(): Attribute
+    {
+        return Attribute::make(
+            get: static function (mixed $value, array $attributes) {
+                return Avatar::create($attributes['name'])->toBase64();
+            },
+        )->shouldCache();
+    }
+
+    /**
+     * Convert the model instance to an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $data = parent::toArray();
+        $data['avatar'] = $this->avatar;
+
+        return $data;
     }
 }

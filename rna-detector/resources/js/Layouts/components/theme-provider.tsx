@@ -1,6 +1,7 @@
 import { useLocalStorage, useMediaQuery } from "@uidotdev/usehooks";
-import {
+import React, {
   createContext,
+  FunctionComponent,
   PropsWithChildren,
   useContext,
   useEffect,
@@ -68,3 +69,17 @@ export const useTheme = () => {
 
   return context;
 };
+
+export function withTheme<P extends object = object>(
+  Component: React.ComponentType<P>,
+): FunctionComponent<P> {
+  const hoc = function WithTheme(props: P) {
+    return (
+      <ThemeProvider>
+        <Component {...props} />
+      </ThemeProvider>
+    );
+  };
+  hoc.displayName = `withTheme(${Component.displayName || Component.name})`;
+  return hoc;
+}

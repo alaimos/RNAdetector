@@ -25,6 +25,7 @@ import { NavMain } from "@/Layouts/components/nav-main";
 import { NavProjects } from "@/Layouts/components/nav-projects";
 import { NavSecondary } from "@/Layouts/components/nav-secondary";
 import { NavUser } from "@/Layouts/components/nav-user";
+import { usePage } from "@inertiajs/react";
 
 const data = {
   user: {
@@ -151,6 +152,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const authEnabled = usePage().props.auth.enabled;
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -176,9 +178,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
+      <SidebarFooter>{authEnabled && <NavUser />}</SidebarFooter>
     </Sidebar>
   );
 }
