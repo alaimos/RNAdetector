@@ -6,22 +6,31 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode, useMemo } from "react";
 
 type StandardLayoutProps = PropsWithChildren<{
-  header?: ReactNode;
+  header?: ReactNode | string;
 }>;
 
 function StandardLayoutContent({ header, children }: StandardLayoutProps) {
+  const headerContent = useMemo(
+    () =>
+      typeof header === "string" ? (
+        <h2 className="text-xl font-semibold tracking-tight">{header}</h2>
+      ) : (
+        header
+      ),
+    [header],
+  );
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 bg-background md:rounded-xl md:shadow">
+        <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 bg-background md:rounded-xl">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            {header}
+            {headerContent}
             {/*<Breadcrumb>*/}
             {/*  <BreadcrumbList>*/}
             {/*    <BreadcrumbItem className="hidden md:block">*/}
