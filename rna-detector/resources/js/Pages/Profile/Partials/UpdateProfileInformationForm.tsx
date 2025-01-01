@@ -31,6 +31,14 @@ export default function UpdateProfileInformation() {
     },
   );
 
+  const onSubmit = handleSubmit((data) => {
+    return {
+      method: "patch",
+      url: route("profile.update"),
+      data,
+    };
+  });
+
   return (
     <Card>
       <CardHeader>
@@ -41,16 +49,7 @@ export default function UpdateProfileInformation() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={handleSubmit((data) => {
-              return {
-                method: "patch",
-                url: route("profile.update"),
-                data,
-              };
-            })}
-            className="space-y-8"
-          >
+          <form onSubmit={onSubmit} className="space-y-8">
             <FormField
               control={form.control}
               name="name"
@@ -71,7 +70,7 @@ export default function UpdateProfileInformation() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} autoFocus />
+                    <Input type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

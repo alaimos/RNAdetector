@@ -1,9 +1,14 @@
-import DangerButton from "@/Components/DangerButton";
-import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel";
-import Modal from "@/Components/Modal";
-import SecondaryButton from "@/Components/SecondaryButton";
-import TextInput from "@/Components/TextInput";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,50 +16,46 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useForm } from "@inertiajs/react";
-import { FormEventHandler, useRef, useState } from "react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "@/hooks/use-inertia-form";
+import { useRef, useState } from "react";
+import { z } from "zod";
 
-export default function DeleteUserForm({
-  className = "",
-}: {
-  className?: string;
-}) {
-  const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
+export const DeleteUserRequest = z.object({
+  password: z.string(),
+});
+
+export default function DeleteUserForm() {
+  const [isOpen, setOpen] = useState(false);
   const passwordInput = useRef<HTMLInputElement>(null);
 
-  const {
-    data,
-    setData,
-    delete: destroy,
-    processing,
-    reset,
-    errors,
-    clearErrors,
-  } = useForm({
+  const { form, handleSubmit, processing } = useForm(DeleteUserRequest, {
     password: "",
   });
 
-  const confirmUserDeletion = () => {
-    setConfirmingUserDeletion(true);
-  };
-
-  const deleteUser: FormEventHandler = (e) => {
-    e.preventDefault();
-
-    destroy(route("profile.destroy"), {
-      preserveScroll: true,
-      onSuccess: () => closeModal(),
-      onError: () => passwordInput.current?.focus(),
-      onFinish: () => reset(),
-    });
-  };
-
-  const closeModal = () => {
-    setConfirmingUserDeletion(false);
-
-    clearErrors();
-    reset();
-  };
+  const onSubmit = handleSubmit((data) => {
+    return {
+      method: "delete",
+      url: route("profile.destroy"),
+      data,
+      options: {
+        preserveScroll: true,
+        onSuccess: () => {
+          form.reset();
+          setOpen(false);
+        },
+        onError: () => passwordInput.current?.focus(),
+      },
+    };
+  });
 
   return (
     <Card>
@@ -67,53 +68,56 @@ export default function DeleteUserForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <DangerButton onClick={confirmUserDeletion}>
-          Delete Account
-        </DangerButton>
-
-        <Modal show={confirmingUserDeletion} onClose={closeModal}>
-          <form onSubmit={deleteUser} className="p-6">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-              Are you sure you want to delete your account?
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              Once your account is deleted, all of its resources and data will
-              be permanently deleted. Please enter your password to confirm you
-              would like to permanently delete your account.
-            </p>
-
-            <div className="mt-6">
-              <InputLabel
-                htmlFor="password"
-                value="Password"
-                className="sr-only"
-              />
-
-              <TextInput
-                id="password"
-                type="password"
-                name="password"
-                ref={passwordInput}
-                value={data.password}
-                onChange={(e) => setData("password", e.target.value)}
-                className="mt-1 block w-3/4"
-                isFocused
-                placeholder="Password"
-              />
-
-              <InputError message={errors.password} className="mt-2" />
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
-
-              <DangerButton className="ms-3" disabled={processing}>
-                Delete Account
-              </DangerButton>
-            </div>
-          </form>
-        </Modal>
+        <AlertDialog open={isOpen} onOpenChange={setOpen}>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">Delete Account</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <Form {...form}>
+              <form onSubmit={onSubmit}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Are you sure you want to delete your account?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Once your account is deleted, all of its resources and data
+                    will be permanently deleted. Please enter your password to
+                    confirm you would like to permanently delete your account.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="my-4">
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your password</FormLabel>
+                        <FormControl ref={passwordInput}>
+                          <Input
+                            {...field}
+                            type="password"
+                            autoComplete="password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <Button
+                    type="submit"
+                    variant="destructive"
+                    disabled={processing}
+                  >
+                    Delete Account
+                  </Button>
+                </AlertDialogFooter>
+              </form>
+            </Form>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
