@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "@/hooks/use-inertia-form";
-import { UpdatePasswordRequest } from "@/schema";
+import UpdatePasswordRequest from "@/schema/Auth/UpdatePasswordRequest";
 import { Transition } from "@headlessui/react";
 import { useRef } from "react";
 

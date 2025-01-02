@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "@/hooks/use-inertia-form";
-import { ProfileUpdateRequest } from "@/schema";
+import ProfileUpdateRequest from "@/schema/Auth/ProfileUpdateRequest";
 import { Transition } from "@headlessui/react";
 import { usePage } from "@inertiajs/react";
 

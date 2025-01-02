@@ -26,12 +26,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "@/hooks/use-inertia-form";
+import DeleteUserRequest from "@/schema/Auth/DeleteUserRequest";
 import { useRef, useState } from "react";
-import { z } from "zod";
-
-export const DeleteUserRequest = z.object({
-  password: z.string(),
-});
 
 export default function DeleteUserForm() {
   const [isOpen, setOpen] = useState(false);
