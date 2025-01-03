@@ -16,7 +16,7 @@ trait HasSlug
     protected string $slugColumn = 'slug';
 
     /**
-     * The column name of the origin of the slug.
+     * The column name where the slug can be derived from.
      */
     protected string $slugOriginColumn = 'name';
 

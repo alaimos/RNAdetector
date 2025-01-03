@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use App\Contracts\Models\AssignedToUser;
 use App\Enums\JobStatus;
+use App\Observers\AssignToUserObserver;
 use App\Traits\HasVisibleByUser;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Data extends Model
+#[ObservedBy(AssignToUserObserver::class)]
+class Data extends Model implements AssignedToUser
 {
     use HasVisibleByUser;
 

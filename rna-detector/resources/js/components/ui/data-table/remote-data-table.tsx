@@ -25,8 +25,8 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useDebounce } from "@uidotdev/usehooks";
-import { ReactNode, useEffect, useState } from "react";
+import { useDebounce, useIsFirstRender } from "@uidotdev/usehooks";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export type FetchDataFunctionState = {
@@ -36,18 +36,18 @@ export type FetchDataFunctionState = {
   pagination: PaginationState;
 };
 
-export type FetchDataFunction<TData> = (
+export type RequestDataFunction = (
   state: FetchDataFunctionState,
-) => Promise<{
-  data: TData[];
-  rowCount: number;
-}>;
+) => Promise<void>;
 
 interface RemoteDataTableProps<TData, TValue> {
+  data?: TData[];
+  rowCount?: number;
+  previousState?: FetchDataFunctionState;
   columns: ColumnDef<TData, TValue>[];
   enableGlobalFilter?: boolean;
   toolbarChildren?: (table: TableType<TData>) => ReactNode;
-  fetchData?: FetchDataFunction<TData>;
+  requestData?: RequestDataFunction;
 }
 
 function SimulatedRows({
@@ -75,46 +75,64 @@ function SimulatedRows({
 }
 
 export function RemoteDataTable<TData, TValue>({
+  data = [],
+  rowCount = 0,
   columns,
   enableGlobalFilter = false,
   toolbarChildren,
-  fetchData,
+  requestData,
+  previousState,
 }: RemoteDataTableProps<TData, TValue>) {
-  const [data, setData] = useState<TData[]>([]);
-  const [rowCount, setRowCount] = useState<number>(0);
+  const previousStateRef = useRef(previousState);
   const [loading, setLoading] = useState<boolean>(false);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageSize: 10,
-    pageIndex: 0,
-  });
+  const [pagination, setPagination] = useState<PaginationState>(
+    previousStateRef.current?.pagination || {
+      pageSize: 10,
+      pageIndex: 0,
+    },
+  );
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState<string>("");
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    previousStateRef.current?.columnFilters ?? [],
+  );
+  const [sorting, setSorting] = useState<SortingState>(
+    previousStateRef.current?.sorting ?? [],
+  );
+  const [globalFilter, setGlobalFilter] = useState<string>(
+    previousStateRef.current?.globalFilter ?? "",
+  );
+  const isFirstRender = useIsFirstRender();
   const debouncedGlobalFilter = useDebounce(globalFilter, 500);
+  const requestDataRef = useRef(requestData);
+  const dataAreStable = useRef(false);
 
   useEffect(() => {
-    if (!fetchData) return;
+    if (!requestDataRef.current || isFirstRender) return;
+    if (!dataAreStable.current) {
+      dataAreStable.current = true;
+      return;
+    }
     setLoading(true);
-    fetchData({
-      sorting,
-      columnFilters,
-      globalFilter: debouncedGlobalFilter,
-      pagination,
-    })
-      .then(({ data, rowCount }) => {
-        setData(data);
-        setRowCount(rowCount);
+    requestDataRef
+      .current({
+        sorting,
+        columnFilters,
+        globalFilter: debouncedGlobalFilter,
+        pagination,
       })
       .catch((error) => {
-        toast.error(`An error occurred while fetching the data: ${error}`);
-        setData([]);
-        setRowCount(0);
+        toast.error(`An error occurred while requesting the data: ${error}`);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [columnFilters, debouncedGlobalFilter, pagination, sorting, fetchData]);
+  }, [
+    columnFilters,
+    debouncedGlobalFilter,
+    isFirstRender,
+    pagination,
+    sorting,
+  ]);
 
   const table = useReactTable({
     data,
