@@ -3,6 +3,7 @@
 namespace App\Services\DataTable\Contracts;
 
 use App\Http\Requests\DataTableRequest;
+use Illuminate\Support\Collection;
 
 /**
  * @template T
@@ -45,9 +46,9 @@ interface Adapter
      * Adapt the output.
      *
      * @param  T  $builder
-     * @return array<O>
+     * @return Collection<O>
      */
-    public function adaptOutput($builder, DataTableRequest $request): array;
+    public function adaptOutput($builder, DataTableRequest $request): Collection;
 
     /**
      * Get the count of elements from a builder.

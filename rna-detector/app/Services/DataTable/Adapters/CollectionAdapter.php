@@ -9,9 +9,10 @@ use App\Services\DataTable\Pipes\Collection\GlobalFilter;
 use App\Services\DataTable\Pipes\Collection\Pagination;
 use App\Services\DataTable\Pipes\Collection\Sorting;
 use Illuminate\Support\Collection;
+use Override;
 
 /**
- * @implements Adapter<Collection,\Closure(mixed,string):bool>
+ * @implements Adapter<Collection,\Closure(mixed,string):bool,array<string,mixed>>
  */
 class CollectionAdapter implements Adapter
 {
@@ -29,7 +30,7 @@ class CollectionAdapter implements Adapter
      *
      * @param  array{globalFilterColumns?: array<string,\Closure(mixed,string):bool>, columnFilter?: array<string,\Closure(Collection, array<string>):Collection>, sortableColumns?: array<string>} $config
      */
-    #[\Override]
+    #[Override]
     public static function make(array $config): self
     {
         return new self()->configure($config);
@@ -40,7 +41,7 @@ class CollectionAdapter implements Adapter
      *
      * @param  array{globalFilterColumns?: array<string,\Closure(mixed,string):bool>, columnFilter?: array<string,\Closure(Collection, array<string>):Collection>, sortableColumns?: array<string>} $config
      */
-    #[\Override]
+    #[Override]
     public function configure(array $config): self
     {
         $this->config = [
@@ -57,7 +58,7 @@ class CollectionAdapter implements Adapter
      *
      * @return array<\App\Services\DataTable\Contracts\Pipe<Collection>>
      */
-    #[\Override]
+    #[Override]
     public function getFilterPipes(DataTableRequest $request): array
     {
         return [
@@ -71,7 +72,7 @@ class CollectionAdapter implements Adapter
      *
      * @return array<\App\Services\DataTable\Contracts\Pipe<Collection>>
      */
-    #[\Override]
+    #[Override]
     public function getOutputPipes(DataTableRequest $request): array
     {
         return [
@@ -82,18 +83,18 @@ class CollectionAdapter implements Adapter
 
     /**
      * @param \Illuminate\Support\Collection $builder
-     * @return array<array<string, mixed>>
+     * @return \Illuminate\Support\Collection<array<string,mixed>>
      */
-    #[\Override]
-    public function adaptOutput($builder, DataTableRequest $request): array
+    #[Override]
+    public function adaptOutput($builder, DataTableRequest $request): Collection
     {
-        return $builder->values()->toArray();
+        return $builder->values();
     }
 
     /**
      * @param \Illuminate\Support\Collection $builder
      */
-    #[\Override]
+    #[Override]
     public function getCount($builder, DataTableRequest $request): int
     {
         return $builder->count();

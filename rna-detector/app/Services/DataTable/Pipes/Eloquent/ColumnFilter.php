@@ -24,9 +24,11 @@ readonly class ColumnFilter implements Pipe
     public function __invoke($builder, \Closure $next): Builder
     {
         $columnFilters = $this->request->column_filters;
-        foreach ($columnFilters as $column => $value) {
-            if (isset($this->config[$column])) {
-                $builder = $this->config[$column]($builder, $value);
+        if ($columnFilters) {
+            foreach ($columnFilters as $column => $value) {
+                if (isset($this->config[$column])) {
+                    $builder = $this->config[$column]($builder, $value);
+                }
             }
         }
 

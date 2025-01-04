@@ -20,9 +20,6 @@ readonly class Pagination implements Pipe
     #[\Override]
     public function __invoke($builder, \Closure $next): Collection
     {
-        $page = (int) ($this->request->page ?? 1);
-        $perPage = (int) ($this->request->per_page ?? 10);
-
-        return $next($builder->forPage($page, $perPage));
+        return $next($builder->forPage($this->request->page, $this->request->per_page));
     }
 }

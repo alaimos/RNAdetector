@@ -8,8 +8,6 @@ Route::get('/', static function () {
     return redirect()->route('dashboard');
 });
 
-Route::get('/test', \App\Http\Controllers\TestController::class)->name('test');
-
 Route::get('/dashboard', static function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -6,8 +6,11 @@ use App\Http\Requests\DataTableRequest;
 use App\Services\DataTable\Contracts\Adapter;
 use App\Services\DataTable\Pipes\Eloquent\ColumnFilter;
 use App\Services\DataTable\Pipes\Eloquent\GlobalFilter;
+use App\Services\DataTable\Pipes\Eloquent\Pagination;
 use App\Services\DataTable\Pipes\Eloquent\Sorting;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Override;
 
 /**
  * @template Model of \Illuminate\Database\Eloquent\Model
@@ -29,7 +32,7 @@ class EloquentAdapter implements Adapter
      *
      * @param  array{globalFilterColumns?: array<string,\Closure(Builder $builder, string $filter, string $column): void>, columnFilter?: array<string,\Closure(Builder, array<string>):Builder>, sortableColumns?: array<string>} $config
      */
-    #[\Override]
+    #[Override]
     public static function make(array $config): self
     {
         return new self()->configure($config);
@@ -40,7 +43,7 @@ class EloquentAdapter implements Adapter
      *
      * @param  array{globalFilterColumns?: array<string,\Closure(Builder $builder, string $filter, string $column): void>, columnFilter?: array<string,\Closure(Builder, array<string>):Builder>, sortableColumns?: array<string>} $config
      */
-    #[\Override]
+    #[Override]
     public function configure(array $config): self
     {
         $this->config = [
@@ -57,7 +60,7 @@ class EloquentAdapter implements Adapter
      *
      * @return array<\App\Services\DataTable\Contracts\Pipe<Builder>>
      */
-    #[\Override]
+    #[Override]
     public function getFilterPipes(DataTableRequest $request): array
     {
         return [
@@ -71,28 +74,29 @@ class EloquentAdapter implements Adapter
      *
      * @return array<\App\Services\DataTable\Contracts\Pipe<Builder>>
      */
-    #[\Override]
+    #[Override]
     public function getOutputPipes(DataTableRequest $request): array
     {
         return [
             new Sorting($request, $this->config['sortableColumns']),
+            new Pagination($request),
         ];
     }
 
     /**
      * @param \Illuminate\Database\Eloquent\Builder $builder
-     * @return array<\Illuminate\Database\Eloquent\Model>
+     * @return \Illuminate\Database\Eloquent\Collection<\Illuminate\Database\Eloquent\Model>
      */
-    #[\Override]
-    public function adaptOutput($builder, DataTableRequest $request): array
+    #[Override]
+    public function adaptOutput($builder, DataTableRequest $request): Collection
     {
-        return $builder->paginate($request->per_page)->items();
+        return $builder->get();
     }
 
     /**
      * @param \Illuminate\Database\Eloquent\Builder $builder
      */
-    #[\Override]
+    #[Override]
     public function getCount($builder, DataTableRequest $request): int
     {
         return $builder->count();
