@@ -2,26 +2,30 @@
 
 namespace App\Services\Mamba\Command;
 
+use App\Services\Mamba\Command\Flags\Flag;
 use App\Services\Mamba\Contracts\ConvertibleToCommand;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Conditionable;
 use Override;
 
-final class Command implements ConvertibleToCommand
+class Command implements ConvertibleToCommand
 {
+    use Conditionable;
+
     /**
      * @var string[]
      */
-    private array $command = [];
+    protected array $command = [];
 
     /**
-     * @var array<string, \App\Services\Mamba\Command\Flag>
+     * @var array<string, \App\Services\Mamba\Command\Flags\Flag>
      */
-    private array $flags = [];
+    protected array $flags = [];
 
     /**
      * @var ConvertibleToCommand[]
      */
-    private array $positionalArguments = [];
+    protected array $positionalArguments = [];
 
     /**
      * Set the name of the command to be executed.
@@ -34,7 +38,7 @@ final class Command implements ConvertibleToCommand
         if (! is_array($command)) {
             $command = [$command];
         }
-        $this->command[] = $command;
+        $this->command = array_merge($this->command, $command);
 
         return $this;
     }
@@ -100,18 +104,6 @@ final class Command implements ConvertibleToCommand
     }
 
     /**
-     * Add a flag indicating that the command should output JSON.
-     *
-     * @return $this
-     */
-    public function requiresJsonOutput(string $jsonFlag = '--json'): self
-    {
-        $this->withFlag(Flag::makeJson($jsonFlag));
-
-        return $this;
-    }
-
-    /**
      * Convert the element to an array of command arguments.
      *
      * @return string[]
@@ -131,10 +123,10 @@ final class Command implements ConvertibleToCommand
      *
      * @return string[]
      */
-    private function gatherFlags(): array
+    protected function gatherFlags(): array
     {
         return Arr::flatten(
-            ...array_filter(
+            array_filter(
                 array_map(
                     static fn (Flag $f) => $f->toCommand(),
                     array_values($this->flags)
@@ -148,10 +140,10 @@ final class Command implements ConvertibleToCommand
      *
      * @return string[]
      */
-    private function gatherPositionalArguments(): array
+    protected function gatherPositionalArguments(): array
     {
         return Arr::flatten(
-            ...array_filter(
+            array_filter(
                 array_map(
                     static fn (ConvertibleToCommand $c) => $c->toCommand(),
                     array_values($this->positionalArguments)

@@ -8,6 +8,9 @@ final readonly class PositionalArgument implements ConvertibleToCommand
 {
     public function __construct(public string $argument) {}
 
+    /**
+     * Create a new instance of the positional argument.
+     */
     public static function make(string $argument): self
     {
         return new self($argument);

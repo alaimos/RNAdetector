@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Mamba\Command;
+namespace App\Services\Mamba\Command\Flags;
 
 use App\Services\Mamba\Contracts\ConvertibleToCommand;
 use Closure;
@@ -9,8 +9,10 @@ use Override;
 
 /**
  * @implements Arrayable<string, mixed>
+ *
+ * @phpstan-consistent-constructor
  */
-final class Flag implements Arrayable, ConvertibleToCommand
+class Flag implements Arrayable, ConvertibleToCommand
 {
     /**
      * The name of the flag.
@@ -43,7 +45,7 @@ final class Flag implements Arrayable, ConvertibleToCommand
      * The separator used to separate the flag and its value.
      * By default, whe use the space (-flag value).
      */
-    public string $flagValueSeparator = ' ';
+    public string $flagSeparator = ' ';
 
     public function __construct(string $flag, string|array|bool|null|Closure $value = true)
     {
@@ -55,19 +57,10 @@ final class Flag implements Arrayable, ConvertibleToCommand
      * Create a new instance of the flag.
      *
      * @param  null|bool|string|array<null|bool|string>|(\Closure(): bool|string|null)  $value
-     * @return static
      */
-    public static function make(string $flag, string|array|bool|null|Closure $value = true): self
+    public static function make(string $flag, string|array|bool|null|Closure $value = true): static
     {
-        return new self($flag, $value);
-    }
-
-    /**
-     * Create a new instance of the JSON output flag.
-     */
-    public static function makeJson(string $jsonFlag = '--json'): self
-    {
-        return new self($jsonFlag, true);
+        return new static($flag, $value);
     }
 
     /**
@@ -87,7 +80,7 @@ final class Flag implements Arrayable, ConvertibleToCommand
      *
      * @return $this
      */
-    public function usingValuesSeparator(string $separator): self
+    public function valuesSeparator(string $separator): self
     {
         $this->valuesSeparator = $separator;
 
@@ -99,9 +92,9 @@ final class Flag implements Arrayable, ConvertibleToCommand
      *
      * @return $this
      */
-    public function usingFlagValueSeparator(string $separator): self
+    public function flagSeparator(string $separator): self
     {
-        $this->flagValueSeparator = $separator;
+        $this->flagSeparator = $separator;
 
         return $this;
     }
@@ -145,7 +138,7 @@ final class Flag implements Arrayable, ConvertibleToCommand
     {
         return [
             'flag' => $this->flag,
-            'value' => $this->computeValue(),
+            'value' => value($this->value),
             'repeteable' => $this->repeteable,
             'valueSeparator' => $this->valuesSeparator,
         ];
@@ -157,7 +150,7 @@ final class Flag implements Arrayable, ConvertibleToCommand
     #[Override]
     public function toCommand(): ?array
     {
-        $value = $this->computeValue();
+        $value = value($this->value);
         if ($value === null || $value === false) {
             return null;
         }
@@ -175,50 +168,50 @@ final class Flag implements Arrayable, ConvertibleToCommand
     }
 
     /**
-     * Get the value of the flag.
-     */
-    private function computeValue(): string|array|bool|null
-    {
-        return ($this->value instanceof Closure) ? ($this->value)() : $this->value;
-    }
-
-    /**
      * Handle the case where the value of the flag is a string.
      */
-    private function handleStringValue(string $value): array
+    protected function handleStringValue(string $value): array
     {
-        if ($this->flagValueSeparator === ' ') {
+        if ($this->flagSeparator === ' ') {
             return [$this->flag, $value];
         }
 
-        return [$this->flag.$this->flagValueSeparator.$value];
+        return [$this->flag.$this->flagSeparator.$value];
     }
 
-    private function handleRepeatableValue(array $values): array
+    /**
+     * Handle the case where the value of the flag is an array
+     * and the flag is repeatable.
+     */
+    protected function handleRepeatableValue(array $values): array
     {
         $result = [];
         foreach ($values as $value) {
-            if ($this->flagValueSeparator === ' ') {
+            if ($this->flagSeparator === ' ') {
                 $result[] = $this->flag;
                 $result[] = $value;
             } else {
-                $result[] = $this->flag.$this->flagValueSeparator.$value;
+                $result[] = $this->flag.$this->flagSeparator.$value;
             }
         }
 
         return $result;
     }
 
-    private function handleMultivaluedValue(array $values): array
+    /**
+     * Handle the case where the value of the flag is an array
+     * and the flag is multivalued.
+     */
+    protected function handleMultivaluedValue(array $values): array
     {
-        if ($this->flagValueSeparator === ' ' && $this->valuesSeparator === ' ') {
+        if ($this->flagSeparator === ' ' && $this->valuesSeparator === ' ') {
             return [$this->flag, ...$values];
         }
-        if ($this->flagValueSeparator === ' ') {
+        if ($this->flagSeparator === ' ') {
             return [$this->flag, implode($this->valuesSeparator, $values)];
         }
 
-        return [$this->flag.$this->flagValueSeparator.implode($this->valuesSeparator, $values)];
+        return [$this->flag.$this->flagSeparator.implode($this->valuesSeparator, $values)];
     }
 
     /**
@@ -228,14 +221,10 @@ final class Flag implements Arrayable, ConvertibleToCommand
      * If the first value is a boolean, the second value is returned.
      * In all other cases, the values are merged into an array.
      */
-    private function mergeValues(string|array|bool|Closure|null $value1, string|array|bool|Closure|null $value2)
+    protected function mergeValues(string|array|bool|Closure|null $value1, string|array|bool|Closure|null $value2)
     {
-        if ($value1 instanceof Closure) {
-            $value1 = $value1();
-        }
-        if ($value2 instanceof Closure) {
-            $value2 = $value2();
-        }
+        $value1 = value($value1);
+        $value2 = value($value2);
         if ($value1 === null) {
             return $value2;
         }
