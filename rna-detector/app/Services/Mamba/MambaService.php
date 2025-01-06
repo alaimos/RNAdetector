@@ -2,7 +2,7 @@
 
 namespace App\Services\Mamba;
 
-use App\Services\Mamba\Command\Facade\Command;
+use App\Services\Mamba\Facade\Command;
 use App\Services\Mamba\Contracts\ConvertibleToCommand;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Process;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Mamba\Command\Facade;
+namespace App\Services\Mamba\Facade;
 
 use App\Services\Mamba\Command\Factory;
 use Illuminate\Support\Facades\Facade;

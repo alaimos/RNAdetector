@@ -2,9 +2,9 @@
 
 namespace App\Services\Mamba\Command;
 
-use App\Services\Mamba\Command\Facade\Command as CommandFacade;
 use App\Services\Mamba\Command\Flags\NonMergeableFlag;
 use App\Services\Mamba\Contracts\ConvertibleToCommand;
+use App\Services\Mamba\Facade\Command as CommandFacade;
 use Closure;
 
 /**
