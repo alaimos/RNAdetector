@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\Models\AssignedToUser;
+use App\Helpers;
 use App\Observers\AssignToUserObserver;
 use App\Traits\HasVisibleByUser;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\File;
 
 #[ObservedBy(AssignToUserObserver::class)]
 class Dataset extends Model implements AssignedToUser
@@ -50,8 +52,7 @@ class Dataset extends Model implements AssignedToUser
      */
     public function visibleData(): HasMany
     {
-        // @phpstan-ignore-next-line
-        return $this->data()->visibleByUser();
+        return $this->data()->visibleByUser(); // @phpstan-ignore-line
     }
 
     /**
@@ -72,5 +73,16 @@ class Dataset extends Model implements AssignedToUser
         return [
             'is_public' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the path to the dataset folder.
+     */
+    public function path(): string
+    {
+        $path = Helpers::getDatasetPath($this->id);
+        File::ensureDirectoryExists(storage_path($path));
+
+        return $path;
     }
 }

@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Services\DataFiles\Contracts\DataType as DataTypeContract;
+use App\Services\DataFiles\DataTypeRepository;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class DataType extends Model
 {
@@ -27,5 +31,17 @@ class DataType extends Model
     public function data(): HasMany
     {
         return $this->hasMany(Data::class);
+    }
+
+    /**
+     * Get the descriptor object for this data type.
+     */
+    public function descriptor(): ?DataTypeContract
+    {
+        try {
+            return app(DataTypeRepository::class)->get($this->slug);
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface) {
+            return null;
+        }
     }
 }
