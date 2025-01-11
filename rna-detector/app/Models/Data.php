@@ -100,6 +100,14 @@ class Data extends Model implements AssignedToUser
     }
 
     /**
+     * Check if the data file exists for the given content element.
+     */
+    public function hasDataFile(string $element): bool
+    {
+        return isset($this->content[$element]);
+    }
+
+    /**
      * Get the data file object for the given content element.
      */
     public function dataFile(string $element): ?DataFile

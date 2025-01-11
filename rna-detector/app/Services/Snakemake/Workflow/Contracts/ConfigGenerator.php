@@ -2,6 +2,8 @@
 
 namespace App\Services\Snakemake\Workflow\Contracts;
 
+use App\Services\Snakemake\Workflow\Contracts\Data\CollectedDataFiles;
+use App\Services\Snakemake\Workflow\WorkflowDatasets;
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Contracts\Support\Arrayable;
@@ -37,7 +39,7 @@ interface ConfigGenerator extends Arrayable
     /**
      * Set the data files for the workflow.
      */
-    public function withDataFiles(WorkflowDataFiles $dataFiles): self;
+    public function withDataFiles(CollectedDataFiles $dataFiles): self;
 
     /**
      * Set the datasets for the workflow.
