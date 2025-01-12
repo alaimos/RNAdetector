@@ -41,7 +41,7 @@ interface ConfigGenerator
     /**
      * Set the metadata for the workflow.
      */
-    public function withMetadata(WorkflowMetadata $metadata): self;
+    public function withMetadata(MetadataContainer $metadata): self;
 
     /**
      * Set the parameters for the workflow.

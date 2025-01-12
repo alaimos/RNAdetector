@@ -3,7 +3,7 @@
 namespace App\Services\Snakemake\Workflow\ConfigGenerators;
 
 use App\Services\Snakemake\Workflow\Contracts\ConfigGenerator;
-use App\Services\Snakemake\Workflow\Contracts\WorkflowMetadata;
+use App\Services\Snakemake\Workflow\Contracts\MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
 use ArrayAccess;
@@ -27,7 +27,7 @@ abstract class AbstractConfigGenerator implements ConfigGenerator
     /**
      * The metadata for the workflow.
      */
-    public protected(set) WorkflowMetadata $metadata;
+    public protected(set) MetadataContainer $metadata;
 
     /**
      * The parameters for the workflow.
@@ -60,7 +60,7 @@ abstract class AbstractConfigGenerator implements ConfigGenerator
      * Set the metadata for the workflow.
      */
     #[Override]
-    public function withMetadata(WorkflowMetadata $metadata): self
+    public function withMetadata(MetadataContainer $metadata): self
     {
         $this->metadata = $metadata;
         return $this;

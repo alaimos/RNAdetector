@@ -2,7 +2,7 @@
 
 namespace App\Services\Snakemake\Workflow\ConfigGenerators;
 
-use App\Services\Snakemake\Workflow\Contracts\WorkflowMetadata;
+use App\Services\Snakemake\Workflow\Contracts\MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
 use Closure;
@@ -28,13 +28,13 @@ class TsvConfigGenerator extends AbstractConfigGenerator
      * It should return an 2-dimensional array where each element is a row in the TSV file.
      * The first row should contain the column headers only when required.
      *
-     * @var Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, WorkflowMetadata): (string[][])
+     * @var Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, MetadataContainer): (string[][])
      */
     public Closure $prepareConfigCallback;
 
     /**
      * @param  string  $file
-     * @param  Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, WorkflowMetadata): (string[][])  $prepareConfigCallback
+     * @param  Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, MetadataContainer): (string[][])  $prepareConfigCallback
      */
     public function __construct(string $file, Closure $prepareConfigCallback)
     {

@@ -4,7 +4,7 @@ namespace App\Services\Snakemake\Workflow\Contracts;
 
 use ArrayAccess;
 
-interface WorkflowMetadata extends ArrayAccess
+interface MetadataReader extends ArrayAccess
 {
     /**
      * An array of metadata for the workflow.
@@ -32,5 +32,5 @@ interface WorkflowMetadata extends ArrayAccess
      *
      * @return $this
      */
-    public function merge(WorkflowMetadata $datasets): self;
+    public function merge(MetadataReader $datasets): self;
 }
