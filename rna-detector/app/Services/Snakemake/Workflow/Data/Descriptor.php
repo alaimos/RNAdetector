@@ -5,7 +5,7 @@ namespace App\Services\Snakemake\Workflow\Data;
 use App\Models\Dataset;
 use App\Models\DataType;
 use App\Services\Snakemake\Workflow\Contracts\Data\DataPathResolver;
-use App\Services\Snakemake\Workflow\Contracts\Data\Specifications as SpecificationsContract;
+use App\Services\Snakemake\Workflow\Contracts\Data\Descriptor as DescriptorContract;
 use ArrayAccess;
 use Closure;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
@@ -15,7 +15,7 @@ use Override;
 /**
  * A set of specifications for pulling datasets from the workflow configuration.
  */
-class Specifications implements SpecificationsContract
+class Descriptor implements DescriptorContract
 {
     /**
      * How to get the list of datasets from the workflow configuration.
@@ -94,7 +94,7 @@ class Specifications implements SpecificationsContract
      * @param  ArrayAccess<string, mixed>&ConfigContract  $config
      */
     #[Override]
-    public function withConfig(ArrayAccess&ConfigContract $config): Specifications
+    public function withConfig(ArrayAccess&ConfigContract $config): Descriptor
     {
         $this->config = $config;
 
@@ -105,7 +105,7 @@ class Specifications implements SpecificationsContract
      * Set the path resolver to use when collecting datasets.
      */
     #[Override]
-    public function withPathResolver(DataPathResolver $pathResolver): Specifications
+    public function withPathResolver(DataPathResolver $pathResolver): Descriptor
     {
         $this->pathResolver = $pathResolver;
 

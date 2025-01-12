@@ -3,7 +3,6 @@
 namespace App\Services\Snakemake\Workflow;
 
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
-use Illuminate\Support\Arr;
 
 class WorkflowDatasets
 {

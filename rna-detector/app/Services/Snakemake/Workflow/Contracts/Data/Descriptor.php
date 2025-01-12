@@ -9,7 +9,7 @@ use Illuminate\Contracts\Support\Arrayable;
 /**
  * @extends Arrayable<int, \App\Services\Snakemake\Workflow\Contracts\Data\PulledDataset>
  */
-interface Specifications extends Arrayable
+interface Descriptor extends Arrayable
 {
     /**
      * Convert an array to a Source instance. For example, when loading from a JSON
