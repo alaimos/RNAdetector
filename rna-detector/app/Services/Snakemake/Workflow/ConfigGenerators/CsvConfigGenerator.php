@@ -2,12 +2,11 @@
 
 namespace App\Services\Snakemake\Workflow\ConfigGenerators;
 
-use App\Services\Snakemake\Workflow\Contracts\MetadataContainer;
+use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
 use Closure;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
-use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 use Override;
 use ArrayAccess;

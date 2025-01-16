@@ -4,6 +4,7 @@ namespace App\Services\Snakemake\Workflow\Contracts;
 
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
+use App\Services\Metadata\Container as MetadataContainer;
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 
