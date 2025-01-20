@@ -37,4 +37,13 @@ readonly class Json implements Writer
             contents: $this->bySample ? $container->toSampleJson(JSON_PRETTY_PRINT) : $container->toJson(JSON_PRETTY_PRINT)
         );
     }
+
+    /**
+     * Get the supported extensions for the writer.
+     */
+    #[Override]
+    public static function supportedExtensions(): array
+    {
+        return ['json'];
+    }
 }

@@ -43,12 +43,21 @@ class Csv extends Spreadsheet
     /**
      * Create a new instance of a spreadsheet writer configured with the appropriate options.
      */
-    #[\Override]
+    #[Override]
     protected function createWriter(ParsedSpreadsheet $spreadsheet): IWriter
     {
         return new CsvSpreadsheetWriter($spreadsheet)
             ->setDelimiter($this->delimiter)
             ->setEnclosure($this->enclosure)
             ->setUseBOM(true);
+    }
+
+    /**
+     * Get the supported extensions for the writer.
+     */
+    #[Override]
+    public static function supportedExtensions(): array
+    {
+        return ['csv'];
     }
 }

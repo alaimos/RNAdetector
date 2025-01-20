@@ -26,4 +26,13 @@ class Ods extends Spreadsheet
     {
         return new OdsSpreadsheetWriter($spreadsheet);
     }
+
+    /**
+     * Get the supported extensions for the writer.
+     */
+    #[Override]
+    public static function supportedExtensions(): array
+    {
+        return ['ods'];
+    }
 }

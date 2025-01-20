@@ -26,4 +26,13 @@ class Xls extends Spreadsheet
     {
         return new XlsSpreadsheetWriter($spreadsheet);
     }
+
+    /**
+     * Get the supported extensions for the writer.
+     */
+    #[Override]
+    public static function supportedExtensions(): array
+    {
+        return ['xls'];
+    }
 }

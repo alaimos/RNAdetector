@@ -12,7 +12,7 @@ use Spatie\StructureDiscoverer\Discover;
 final class Factory
 {
     /**
-     * The registered sources.
+     * The registered readers.
      *
      * @var array<string, class-string<Reader>>
      */
@@ -23,6 +23,9 @@ final class Factory
         $this->registerReaders();
     }
 
+    /**
+     * Get a reader instance for the given extension.
+     */
     public function from(string $extension, array $options = []): Reader
     {
         if (! array_key_exists($extension, $this->readers)) {
@@ -34,10 +37,7 @@ final class Factory
     }
 
     /**
-     * Instantiate a source from an array.
-     * The array must contain a 'type' key that matches a registered source.
-     *
-     * @param  array<string, mixed>  $options
+     * Read metadata from a file.
      */
     public function read(string $filename, array $options = []): MetadataContainer
     {
@@ -53,7 +53,7 @@ final class Factory
     }
 
     /**
-     * Automatically discover and register all sources.
+     * Automatically discover and register all readers.
      */
     private function registerReaders(): void
     {
