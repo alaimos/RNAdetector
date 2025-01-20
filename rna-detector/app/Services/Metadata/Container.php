@@ -201,6 +201,26 @@ class Container implements Arrayable, Countable, IteratorAggregate, Jsonable
     }
 
     /**
+     * Get the names of the metadata variables.
+     *
+     * @return array<string>
+     */
+    public function getVariableNames(): array
+    {
+        return $this->metadataVariableNames;
+    }
+
+    /**
+     * Get the names of the samples.
+     *
+     * @return array<string>
+     */
+    public function getSampleNames(): array
+    {
+        return $this->sampleNames;
+    }
+
+    /**
      * Convert to a JSON object where the keys are the metadata variable names, and the values are objects
      * of sample names and metadata values.
      *

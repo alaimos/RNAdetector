@@ -4,6 +4,7 @@ namespace App\Services\Metadata\Readers;
 
 use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Metadata\Contracts\Reader;
+use Illuminate\Support\Facades\File;
 use Override;
 
 readonly class Json implements Reader
@@ -25,12 +26,10 @@ readonly class Json implements Reader
 
     /**
      * {@inheritDoc}
-     *
-     * @throws \JsonException
      */
     public function read(string $file): MetadataContainer
     {
-        $data = json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
+        $data = File::json($file);
         if ($this->bySample) {
             $data = $this->transformBySample($data);
         }
@@ -67,5 +66,4 @@ readonly class Json implements Reader
     {
         return ['json'];
     }
-
 }

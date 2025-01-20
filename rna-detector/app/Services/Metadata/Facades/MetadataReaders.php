@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Facade;
  *
  * @see \App\Services\Metadata\Readers\Factory
  */
-class Readers extends Facade
+class MetadataReaders extends Facade
 {
     /**
      * Get the registered name of the component.

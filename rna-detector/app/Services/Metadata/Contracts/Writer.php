@@ -16,5 +16,5 @@ interface Writer
     /**
      * Write metadata to a file.
      */
-    public function write(string $file): MetadataContainer;
+    public function write(string $file, MetadataContainer $container): void;
 }

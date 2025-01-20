@@ -83,6 +83,8 @@ abstract class Spreadsheet implements Reader
         $spreadsheet = $reader->load($file);
         $sheet = $this->getActiveSheet($spreadsheet);
         $this->readSheet($sheet);
+        $sheet->disconnectCells();
+        $spreadsheet->disconnectWorksheets();
 
         return Container::from($this->data);
     }
@@ -98,7 +100,6 @@ abstract class Spreadsheet implements Reader
      * By default, the active sheet is the first sheet in the spreadsheet.
      *
      * @param  ParsedSpreadsheet  $spreadsheet  The spreadsheet object.
-     *
      * @return Worksheet The active sheet.
      */
     protected function getActiveSheet(ParsedSpreadsheet $spreadsheet): Worksheet
