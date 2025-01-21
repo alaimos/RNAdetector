@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static \App\Services\Snakemake\Workflow\Contracts\Source from(array $data)
  *
- * @see \App\Services\Mamba\Command\Factory
+ * @see \App\Services\Snakemake\Workflow\Sources\Factory
  */
 class Source extends Facade
 {
