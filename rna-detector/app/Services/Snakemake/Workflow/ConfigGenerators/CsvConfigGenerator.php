@@ -132,4 +132,13 @@ class CsvConfigGenerator extends AbstractConfigGenerator
         $configPath = $workflowDir . '/' . $this->file;
         $writer->save($configPath);
     }
+
+    /**
+     * Get the name of the config generator.
+     */
+    #[Override]
+    public static function name(): string
+    {
+        return 'csv';
+    }
 }

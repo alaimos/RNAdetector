@@ -2,9 +2,9 @@
 
 namespace App\Services\Snakemake\Workflow\Contracts;
 
+use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
-use App\Services\Metadata\Container as MetadataContainer;
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 
@@ -16,6 +16,11 @@ use Illuminate\Contracts\Config\Repository as ConfigContract;
  */
 interface ConfigGenerator
 {
+    /**
+     * Get the name of the config generator.
+     */
+    public static function name(): string;
+
     /**
      * Convert an array to a Config Generator instance.
      *

@@ -98,4 +98,13 @@ class JsonConfigGenerator extends AbstractConfigGenerator
             contents: json_encode($config, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)
         );
     }
+
+    /**
+     * Get the name of the config generator.
+     */
+    #[Override]
+    public static function name(): string
+    {
+        return 'json';
+    }
 }
