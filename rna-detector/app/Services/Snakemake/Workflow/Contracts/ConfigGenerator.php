@@ -5,8 +5,7 @@ namespace App\Services\Snakemake\Workflow\Contracts;
 use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
-use ArrayAccess;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Config\Repository as ConfigRepository;
 
 /**
  * Interface ConfigGenerator
@@ -51,10 +50,8 @@ interface ConfigGenerator
 
     /**
      * Set the parameters for the workflow.
-     *
-     * @param  ArrayAccess<string, mixed>&ConfigContract  $params
      */
-    public function withParams(ArrayAccess&ConfigContract $params): self;
+    public function withParams(ConfigRepository $params): self;
 
     /**
      * Write the configuration to a file in the given directory.

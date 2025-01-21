@@ -6,9 +6,8 @@ use App\Models\Dataset;
 use App\Models\DataType;
 use App\Services\Snakemake\Workflow\Contracts\Data\DataPathResolver;
 use App\Services\Snakemake\Workflow\Contracts\Data\Descriptor as DescriptorContract;
-use ArrayAccess;
+use Illuminate\Config\Repository as ConfigRepository;
 use Closure;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Support\Arr;
 use Override;
 
@@ -22,7 +21,7 @@ class Descriptor implements DescriptorContract
      * It can be a string (path inside the config object in laravel style)
      * or a closure that receives the config object and returns the list of datasets.
      *
-     * @var string|string[]|(\Closure(ArrayAccess&ConfigContract): string|string[])
+     * @var string|string[]|(\Closure(ConfigRepository): string|string[])
      */
     public readonly string|array|Closure $source;
 
@@ -35,9 +34,9 @@ class Descriptor implements DescriptorContract
 
     /**
      * The configuration object to use when collecting data.
-     * @var \ArrayAccess&\Illuminate\Contracts\Config\Repository
+     * @var ConfigRepository
      */
-    public protected(set) ArrayAccess&ConfigContract $config;
+    public protected(set) ConfigRepository $config;
 
     /**
      * The path resolver to use when collecting data.
@@ -46,7 +45,7 @@ class Descriptor implements DescriptorContract
 
     /**
      * Create a new instance.
-     * @param  string|string[]|(\Closure(ArrayAccess&ConfigContract): string|string[])  $source
+     * @param  string|string[]|(\Closure(ConfigRepository): string|string[])  $source
      */
     public function __construct(string|array|Closure $source, string|array|DataType|int $dataType, DataPathResolver $pathResolver)
     {
@@ -91,10 +90,10 @@ class Descriptor implements DescriptorContract
     /**
      * Set the configuration object to use when collecting datasets.
      *
-     * @param  ArrayAccess<string, mixed>&ConfigContract  $config
+     * @param  ConfigRepository  $config
      */
     #[Override]
-    public function withConfig(ArrayAccess&ConfigContract $config): Descriptor
+    public function withConfig(ConfigRepository $config): Descriptor
     {
         $this->config = $config;
 

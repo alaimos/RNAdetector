@@ -3,7 +3,9 @@
 namespace App\Services\Snakemake\Workflow;
 
 use App\Models\Analysis;
+use App\Services\Snakemake\Workflow\Contracts\WorkflowRegistry;
 use Closure;
+use Illuminate\Config\Repository;
 
 class Workflow
 {
@@ -12,14 +14,24 @@ class Workflow
      */
     public function __construct(
         protected Descriptor $descriptor,
-        protected mixed $params, // todo: define the type
+        protected Repository $params,
         protected string $workflowPath,
         protected Closure $progressCallback,
     ) {}
 
     public static function from(Analysis $analysis): static
     {
-        // todo: implement
+        $registry = app(WorkflowRegistry::class);
+        if (! isset($registry[$analysis->type])) {
+            throw new \InvalidArgumentException("Workflow type [{$analysis->type}] is not supported.");
+        }
+        $descriptor = $registry[$analysis->type];
+        $parameters = $analysis->parameters?->toArray() ?? []; // @phpstan-ignore-line
+        $params = new Repository($parameters);
+        $workflowPath = ''; // todo: implement
+        $progressCallback = fn (string $message) => logger()->info($message); // todo: implement
+
+        return new static($descriptor, $params, $workflowPath, $progressCallback); // @phpstan-ignore-line
     }
 
     public function prepare(): self

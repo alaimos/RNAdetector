@@ -6,10 +6,9 @@ use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
 use Closure;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Config\Repository as ConfigRepository;
 use InvalidArgumentException;
 use Override;
-use ArrayAccess;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 
@@ -52,13 +51,13 @@ class CsvConfigGenerator extends AbstractConfigGenerator
      * It should return an 2-dimensional array where each element is a row in the CSV file.
      * The first row should contain the column headers only when required.
      *
-     * @var Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, MetadataContainer): (string[][])
+     * @var Closure(ConfigRepository, CollectedDataFiles, WorkflowDatasets, MetadataContainer): (string[][])
      */
     public Closure $prepareConfigCallback;
 
     /**
      * @param  string  $file
-     * @param  Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, MetadataContainer): (string[][])  $prepareConfigCallback
+     * @param  Closure(ConfigRepository, CollectedDataFiles, WorkflowDatasets, MetadataContainer): (string[][])  $prepareConfigCallback
      */
     public function __construct(string $file, Closure $prepareConfigCallback)
     {

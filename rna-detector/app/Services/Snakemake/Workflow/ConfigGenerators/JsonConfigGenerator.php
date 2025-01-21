@@ -6,11 +6,10 @@ use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
 use Closure;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 use Override;
-use ArrayAccess;
 
 class JsonConfigGenerator extends AbstractConfigGenerator
 {
@@ -31,14 +30,14 @@ class JsonConfigGenerator extends AbstractConfigGenerator
      * The callback should accept the configuration parameters, data files, datasets, metadata, and default configuration.
      * It should return an array that represents the configuration that will be written to the file as JSON.
      *
-     * @var Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, MetadataContainer, array<string, mixed>): array<string, mixed>
+     * @var Closure(ConfigRepository, CollectedDataFiles, WorkflowDatasets, MetadataContainer, array<string, mixed>): array<string, mixed>
      */
     public Closure $prepareConfigCallback;
 
     /**
      * @param  string  $file
      * @param  array<string, mixed>  $defaultConfig
-     * @param  Closure(ArrayAccess<string, mixed>&ConfigContract, CollectedDataFiles, WorkflowDatasets, MetadataContainer, array<string, mixed>): array<string, mixed>  $prepareConfigCallback
+     * @param  Closure(ConfigRepository, CollectedDataFiles, WorkflowDatasets, MetadataContainer, array<string, mixed>): array<string, mixed>  $prepareConfigCallback
      */
     public function __construct(string $file, array $defaultConfig, Closure $prepareConfigCallback)
     {

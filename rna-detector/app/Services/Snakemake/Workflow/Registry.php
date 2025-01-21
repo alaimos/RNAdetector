@@ -2,16 +2,14 @@
 
 namespace App\Services\Snakemake\Workflow;
 
-use ArrayAccess;
+use App\Services\Snakemake\Workflow\Contracts\WorkflowRegistry;
 use InvalidArgumentException;
 use Override;
 
 /**
  * Registry for workflow descriptors.
- *
- * @implements ArrayAccess<string, Descriptor>
  */
-final class Registry implements ArrayAccess
+final class Registry implements WorkflowRegistry
 {
     /**
      * Array of workflow descriptors.
@@ -23,7 +21,7 @@ final class Registry implements ArrayAccess
     /**
      * Add a workflow descriptor to the registry.
      */
-    public function registerWorkflowDescriptor(string $name, Descriptor $workflowDescriptor): void
+    public function register(string $name, Descriptor $workflowDescriptor): void
     {
         $this->workflowDescriptors[$name] = $workflowDescriptor;
     }
@@ -43,7 +41,7 @@ final class Registry implements ArrayAccess
     /**
      * Delete a workflow descriptor from the registry.
      */
-    public function deleteWorkflowDescriptor(string $name): void
+    public function delete(string $name): void
     {
         if (! array_key_exists($name, $this->workflowDescriptors)) {
             throw new InvalidArgumentException("Workflow descriptor with name '{$name}' not found.");
@@ -75,7 +73,7 @@ final class Registry implements ArrayAccess
     #[Override]
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->registerWorkflowDescriptor($offset, $value);
+        $this->register($offset, $value);
     }
 
     /**
@@ -84,6 +82,6 @@ final class Registry implements ArrayAccess
     #[Override]
     public function offsetUnset(mixed $offset): void
     {
-        $this->deleteWorkflowDescriptor($offset);
+        $this->delete($offset);
     }
 }

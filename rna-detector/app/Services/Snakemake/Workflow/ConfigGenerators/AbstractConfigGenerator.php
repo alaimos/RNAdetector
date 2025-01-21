@@ -6,8 +6,7 @@ use App\Services\Snakemake\Workflow\Contracts\ConfigGenerator;
 use App\Services\Metadata\Container as MetadataContainer;
 use App\Services\Snakemake\Workflow\Data\CollectedDataFiles;
 use App\Services\Snakemake\Workflow\WorkflowDatasets;
-use ArrayAccess;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Config\Repository as ConfigRepository;
 use Override;
 
 abstract class AbstractConfigGenerator implements ConfigGenerator
@@ -31,9 +30,9 @@ abstract class AbstractConfigGenerator implements ConfigGenerator
     /**
      * The parameters for the workflow.
      *
-     * @var ArrayAccess<string, mixed>&ConfigContract
+     * @var ConfigRepository
      */
-    public protected(set) ArrayAccess&ConfigContract $params;
+    public protected(set) ConfigRepository $params;
 
     /**
      * Set the data files for the workflow.
@@ -71,10 +70,10 @@ abstract class AbstractConfigGenerator implements ConfigGenerator
     /**
      * Set the parameters for the workflow.
      *
-     * @param  ArrayAccess<string, mixed>&ConfigContract  $params
+     * @param  ConfigRepository  $params
      */
     #[Override]
-    public function withParams(ArrayAccess&ConfigContract $params): self
+    public function withParams(ConfigRepository $params): self
     {
         $this->params = $params;
 

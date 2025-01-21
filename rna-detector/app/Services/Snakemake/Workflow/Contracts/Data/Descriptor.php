@@ -2,8 +2,7 @@
 
 namespace App\Services\Snakemake\Workflow\Contracts\Data;
 
-use ArrayAccess;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
@@ -21,10 +20,8 @@ interface Descriptor extends Arrayable
 
     /**
      * Set the configuration object to use when collecting datasets.
-     *
-     * @param  ArrayAccess<string, mixed>&ConfigContract  $config
      */
-    public function withConfig(ArrayAccess&ConfigContract $config): self;
+    public function withConfig(ConfigRepository $config): self;
 
     /**
      * Set the path resolver to use when collecting datasets.
@@ -32,6 +29,8 @@ interface Descriptor extends Arrayable
     public function withPathResolver(DataPathResolver $pathResolver): self;
 
     /**
+     * Collect the datasets described by the descriptor.
+     *
      * @return \App\Services\Snakemake\Workflow\Contracts\Data\PulledDataset[]
      */
     public function collect(): array;

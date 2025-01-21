@@ -6,6 +6,8 @@ use App\Services\DataFiles\Contracts\DataTypeRepository as DataRepositoryContrac
 use App\Services\DataFiles\DataTypeRepository;
 use App\Services\Mamba\MambaService;
 use App\Services\Snakemake\SnakemakeCommands;
+use App\Services\Snakemake\Workflow\Contracts\WorkflowRegistry;
+use App\Services\Snakemake\Workflow\Registry as WorkflowRegistryImpl;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
         MambaService::registerProcessHandler();
         $this->app->scoped('snakemake.commands', fn () => new SnakemakeCommands);
         $this->app->scoped(DataRepositoryContract::class, fn () => new DataTypeRepository);
+        $this->app->scoped(WorkflowRegistry::class, fn () => new WorkflowRegistryImpl);
     }
 }
